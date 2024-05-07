@@ -1,7 +1,6 @@
 #include <WiFi.h>
 #include <SPI.h>
 #include <FS.h>
-#include "gb2312.c"
 #include "functionAll.h"
 
 //****** 屏幕驱动
