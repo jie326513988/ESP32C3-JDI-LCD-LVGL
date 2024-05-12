@@ -38,23 +38,24 @@ typedef enum {
     LV_DISPLAY_ROTATION_270
 } lv_display_rotation_t;
 
-typedef enum {
+typedef enum
+{
     /**
-     * Use the buffer(s) to render the screen is smaller parts.
-     * This way the buffers can be smaller then the display to save RAM. At least 1/10 screen size buffer(s) are recommended.
+     * 使用缓冲区来渲染屏幕的较小部分。
+     * 这样，缓冲区可以比显示器小，以节省RAM。建议至少使用1/10屏幕大小的缓冲区。
      */
     LV_DISPLAY_RENDER_MODE_PARTIAL,
 
     /**
-     * The buffer(s) has to be screen sized and LVGL will render into the correct location of the buffer.
-     * This way the buffer always contain the whole image. Only the changed ares will be updated.
-     * With 2 buffers the buffers' content are kept in sync automatically and in flush_cb only address change is required.
+     * 缓冲区必须具有屏幕大小，LVGL将渲染到缓冲区的正确位置。
+     * 这样，缓冲区总是包含整个图像。只有更改后的ares才会更新。
+     * 有了2个缓冲区，缓冲区的内容会自动保持同步，在flush_cb中只需要更改地址。
      */
     LV_DISPLAY_RENDER_MODE_DIRECT,
 
     /**
-     * Always redraw the whole screen even if only one pixel has been changed.
-     * With 2 buffers in flush_cb only and address change is required.
+     *即使只更改了一个像素，也要始终重新绘制整个屏幕。
+     *flush_cb中只有2个缓冲区，需要更改地址。
      */
     LV_DISPLAY_RENDER_MODE_FULL,
 } lv_display_render_mode_t;

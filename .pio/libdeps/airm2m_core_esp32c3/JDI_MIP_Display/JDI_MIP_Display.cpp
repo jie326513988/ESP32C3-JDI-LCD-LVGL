@@ -375,8 +375,8 @@ bool JDI_MIP_Display::initDMA(int sck, int miso, int mosi, int ss, int fre)
         .input_delay_ns = 0,
         .spics_io_num = pin,
         .flags = SPI_DEVICE_POSITIVE_CS, // 0, SPI_DEVICE_NO_DUMMY
-        .queue_size = 2,
-        .pre_cb = 0, // dc_callback，//回调处理D/C行
+        .queue_size = 3, // 队列数量
+        .pre_cb = 0,     // dc_callback，//回调处理D/C行
         .post_cb = 0};
 
     // spi总线初始化 esp32c3只能auto DMA 通道

@@ -59,6 +59,8 @@
         "maomao.c": "cpp",
         "arduino.h": "c",
         "lv_types.h": "c",
-        "lv_log.h": "c"
+        "lv_log.h": "c",
+        "imageprocessing.c": "cpp",
+        "lv_conf_internal.h": "c"
     }
 }

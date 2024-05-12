@@ -632,7 +632,7 @@ read_image(gd_GIF * gif)
 }
 
 static void
-render_frame_rect(gd_GIF * gif, uint8_t * buffer)
+render_frame_rect(gd_GIF *gif, uint8_t *buffer)
 {
     int i = gif->fy * gif->width + gif->fx;
 #ifdef GIFDEC_RENDER_FRAME
@@ -641,13 +641,16 @@ render_frame_rect(gd_GIF * gif, uint8_t * buffer)
                         gif->gce.transparency ? gif->gce.tindex : 0x100);
 #else
     int j, k;
-    uint8_t index, * color;
+    uint8_t index, *color;
 
-    for(j = 0; j < gif->fh; j++) {
-        for(k = 0; k < gif->fw; k++) {
+    for (j = 0; j < gif->fh; j++)
+    {
+        for (k = 0; k < gif->fw; k++)
+        {
             index = gif->frame[(gif->fy + j) * gif->width + gif->fx + k];
             color = &gif->palette->colors[index * 3];
-            if(!gif->gce.transparency || index != gif->gce.tindex) {
+            if (!gif->gce.transparency || index != gif->gce.tindex)
+            {
                 buffer[(i + k) * 4 + 0] = *(color + 2);
                 buffer[(i + k) * 4 + 1] = *(color + 1);
                 buffer[(i + k) * 4 + 2] = *(color + 0);
@@ -695,7 +698,7 @@ dispose(gd_GIF * gif)
     }
 }
 
-/* Return 1 if got a frame; 0 if got GIF trailer; -1 if error. */
+/* 如果得到帧，则返回1；0如果得到GIF预告片-如果出现错误，则为1。 */
 int
 gd_get_frame(gd_GIF * gif)
 {

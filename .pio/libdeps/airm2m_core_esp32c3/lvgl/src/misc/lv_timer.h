@@ -155,8 +155,8 @@ lv_timer_t * lv_timer_create(lv_timer_cb_t timer_xcb, uint32_t period, void * us
 void lv_timer_delete(lv_timer_t * timer);
 
 /**
- * Pause a timer.
- * @param timer pointer to an lv_timer
+ * 暂停计时器。
+ * @param timer 指向lv_timer的指针
  */
 void lv_timer_pause(lv_timer_t * timer);
 
@@ -167,8 +167,8 @@ void lv_timer_pause(lv_timer_t * timer);
 void lv_timer_resume(lv_timer_t * timer);
 
 /**
- * Set the callback to the timer (the function to call periodically)
- * @param timer pointer to a timer
+ * 将回调设置为计时器（要定期调用的函数）
+ * @param timer 指向计时器的指针
  * @param timer_cb the function to call periodically
  */
 void lv_timer_set_cb(lv_timer_t * timer, lv_timer_cb_t timer_cb);

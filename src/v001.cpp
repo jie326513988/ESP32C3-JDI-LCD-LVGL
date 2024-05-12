@@ -8,11 +8,11 @@
 #define SPI_MISO -1
 #define SPI_MOSI 6
 #define SPI_CS 10
-
 #include <JDI_MIP_Display.h>
 #define NUMBER_COLORS 8
 const uint16_t colors[NUMBER_COLORS] = {COLOR_BLACK, COLOR_BLUE, COLOR_GREEN, COLOR_CYAN, COLOR_RED, COLOR_MAGENTA, COLOR_YELLOW, COLOR_WHITE};
 JDI_MIP_Display jdi_display;
+bool doudong = 1; // 是否开启抖动
 
 #include <lvgl.h>
 #if LV_USE_TFT_ESPI
@@ -34,8 +34,8 @@ JDI_MIP_Display jdi_display;
 //uint8_t buf_HOR[BUF_HOR_NUM];
 
 /*LVGL绘制到这个缓冲区，1/10的屏幕大小通常工作得很好。大小以字节为单位*/
-#define DRAW_BUF_SIZE (TFT_HOR_RES * TFT_VER_RES / 8 * (LV_COLOR_DEPTH / 8))
-uint8_t draw_buf[DRAW_BUF_SIZE / 1];
+#define DRAW_BUF_SIZE (TFT_HOR_RES * TFT_VER_RES / 1 * (LV_COLOR_DEPTH / 8))
+uint16_t draw_buf[DRAW_BUF_SIZE / 2];
 
 #if LV_USE_LOG != 0
 void my_print(lv_log_level_t level, const char *buf)
@@ -45,6 +45,9 @@ void my_print(lv_log_level_t level, const char *buf)
   Serial.flush();
 }
 #endif
+
+#include "imageProcessing.h"
+#include "myLVGLDemo.h"
 
 // LVGL渲染函数，调用自带drawBufferedPixel绘制，可旋转，但会牺牲一点帧率
 void my_disp_flush(lv_display_t *disp, const lv_area_t *area, uint8_t *color_p)
@@ -121,34 +124,126 @@ void my_disp_flush2(lv_display_t *disp, const lv_area_t *area, uint8_t *color_p)
   Serial.print("area->x2:");Serial.println(area->x2);
   Serial.print("area->y1:");Serial.println(area->y1);
   Serial.print("area->y2:");Serial.println(area->y2);
-  Serial.println();*/
+  Serial.println();
+  delay(1000);*/
 
-  // 每个字节表示两个像素，所以只需要屏幕宽度的一半就能存储一行的颜色
-  // 加4是因为每行的头尾都有2个命令
-  uint16_t BUF_HOR_NUM = TFT_HOR_RES / 2 + 4;
+  //*** DMA发送缓冲区
+  // 1个字节存储两个像素的颜色所以只需要屏幕的一半
+  // 头指令2个+末尾结束指令2个所以+4
+  // 因为DMA有BUG，需要发送多4个字节才能正常
+  uint16_t BUF_HOR_NUM = TFT_HOR_RES / 2 + 4 + 4;
   uint8_t buf_HOR[BUF_HOR_NUM];
   memset(&buf_HOR, 0, sizeof(buf_HOR));
-  for (lv_coord_t y = area->y1; y <= area->y2; y++)
+  //*** 当前颜色
+  uint16_t color_cur;          // 当前像素的颜色
+  uint8_t r_cur, g_cur, b_cur; // 旧的颜色 量化的颜色
+  int8_t r_err, g_err, b_err;  // 颜色误差
+  //*** 像素抖动参数
+  uint32_t pixel_offset_d;
+  uint8_t *pixel_d;
+  uint16_t color_d;
+  uint8_t r_d;
+  uint8_t g_d;
+  uint8_t b_d;
+
+  for (lv_coord_t y = area->y1; y <= area->y2; y++) // area->y1 area->y2
   {
     //Serial.print(y);Serial.print(": ");
     // 行开头添加开始命令
     buf_HOR[0] = CMD_UPDATE;
     buf_HOR[1] = y + 1;
-    for (lv_coord_t x = area->x1; x <= area->x2; x++)
+    for (lv_coord_t x = area->x1; x <= area->x2; x++) //area->x1 area->x2
     {
+      // 获取当前地址的颜色，从rgb565拆成rgb分量
+      color_cur = color_p[1] << 8 | color_p[0];
+      r_cur, g_cur, b_cur; // 旧的颜色 量化的颜色
+      r_err, g_err, b_err;  // 颜色误差
+      r_cur = (color_cur >> 11) & 0x1F;
+      g_cur = (color_cur >> 5) & 0x3F;
+      b_cur = color_cur & 0x1F;
+
+      // 量化颜色 将16位颜色转换为8位
+      if (r_cur > 31 / 2) {r_err = r_cur - 31; r_cur = 31;}
+      else                {r_err = r_cur - 0;  r_cur = 0;}
+      if (g_cur > 63 / 2) {g_err = g_cur - 63; g_cur = 63;}
+      else                {g_err = g_cur - 0;  g_cur = 0;}
+      if (b_cur > 31 / 2) {b_err = b_cur - 31; b_cur = 31;}
+      else                {b_err = b_cur - 0;  b_cur = 0;}
+
+      if (doudong) // 抖动开启
+      {
+        modify_pixel_color(color_p, 0, create_rgb565(r_cur, g_cur, b_cur));
+        // 进行误差扩散
+        if (x != TFT_HOR_RES - 1)
+        {
+          //pixel_offset_d = getPixelIdx(1, 0);
+          pixel_offset_d = 2;
+          pixel_d = color_p + pixel_offset_d;
+          color_d = pixel_d[1] << 8 | pixel_d[0];
+          r_d = (color_d >> 11) & 0x1F;
+          g_d = (color_d >> 5) & 0x3F;
+          b_d = color_d & 0x1F;
+          r_d = colorThresholdLimit(r_d, (r_err * 7) / 16, 31);
+          g_d = colorThresholdLimit(g_d, (g_err * 7) / 16, 63);
+          b_d = colorThresholdLimit(b_d, (b_err * 7) / 16, 31);
+          color_d = create_rgb565(r_d, g_d, b_d);
+          modify_pixel_color(color_p, pixel_offset_d, color_d);
+        }
+        if (x != 0 && y != TFT_VER_RES - 1)
+        {
+          //pixel_offset_d = getPixelIdx(-1, 1);
+          pixel_offset_d = 142;
+          pixel_d = color_p + pixel_offset_d;
+          color_d = pixel_d[1] << 8 | pixel_d[0];
+          r_d = (color_d >> 11) & 0x1F;
+          g_d = (color_d >> 5) & 0x3F;
+          b_d = color_d & 0x1F;
+          r_d = colorThresholdLimit(r_d, (r_err * 5) / 16, 31);
+          g_d = colorThresholdLimit(g_d, (g_err * 5) / 16, 63);
+          b_d = colorThresholdLimit(b_d, (b_err * 5) / 16, 31);
+          color_d = create_rgb565(r_d, g_d, b_d);
+          modify_pixel_color(color_p, pixel_offset_d, color_d);
+        }
+        if (y != TFT_VER_RES - 1)
+        {
+          //pixel_offset_d = getPixelIdx(0, 1);
+          pixel_offset_d = 144;
+          pixel_d = color_p + pixel_offset_d;
+          color_d = pixel_d[1] << 8 | pixel_d[0];
+          r_d = (color_d >> 11) & 0x1F;
+          g_d = (color_d >> 5) & 0x3F;
+          b_d = color_d & 0x1F;
+          r_d = colorThresholdLimit(r_d, (r_err * 3) / 16, 31);
+          g_d = colorThresholdLimit(g_d, (g_err * 3) / 16, 63);
+          b_d = colorThresholdLimit(b_d, (b_err * 3) / 16, 31);
+          color_d = create_rgb565(r_d, g_d, b_d);
+          modify_pixel_color(color_p, pixel_offset_d, color_d);
+        }
+        if (x != TFT_HOR_RES - 1 && y != TFT_VER_RES - 1)
+        {
+          //pixel_offset_d = getPixelIdx(1, 1);
+          pixel_offset_d = 146;
+          pixel_d = color_p + pixel_offset_d;
+          color_d = pixel_d[1] << 8 | pixel_d[0];
+          r_d = (color_d >> 11) & 0x1F;
+          g_d = (color_d >> 5) & 0x3F;
+          b_d = color_d & 0x1F;
+          r_d = colorThresholdLimit(r_d, (r_err * 1) / 16, 31);
+          g_d = colorThresholdLimit(g_d, (g_err * 1) / 16, 63);
+          b_d = colorThresholdLimit(b_d, (b_err * 1) / 16, 31);
+          color_d = create_rgb565(r_d, g_d, b_d);
+          modify_pixel_color(color_p, pixel_offset_d, color_d);
+        }
+      }
+      
       uint8_t jdi_color = 0;
-      uint16_t r, g, b;
+      if(r_cur == 31) bitWrite(jdi_color, 3, 1);
+      if(g_cur == 63) bitWrite(jdi_color, 2, 1);
+      if(b_cur == 31) bitWrite(jdi_color, 1, 1);
 
-      //******  16位颜色转换 ****** 
-      uint16_t color = color_p[1] << 8 | color_p[0];
-      r = (color >> 11) & 0x1F;
-      g = (color >> 5) & 0x3F;
-      b = color & 0x1F;
-      if (r > 31 / 2) bitWrite(jdi_color, 3, 1); // 红色
-      if (g > 63 / 2) bitWrite(jdi_color, 2, 1); // 绿色
-      if (b > 31 / 2) bitWrite(jdi_color, 1, 1); // 蓝色
-      color_p += 2;
+      color_p += 2; //16位颜色占用两个字节，移动到下一个地址
 
+      //****** 一个字节存储两个像素的颜色
       int pixelIdx1 = (x / 2);
       if (x % 2 == 0)
       {
@@ -160,10 +255,16 @@ void my_disp_flush2(lv_display_t *disp, const lv_area_t *area, uint8_t *color_p)
         buf_HOR[pixelIdx1 + 2] &= 0xF0;
         buf_HOR[pixelIdx1 + 2] |= jdi_color & 0x0F;
       }
+      //Serial.print(draw_buf[x + y * TFT_HOR_RES]);
+      //Serial.print(" ");
     }
     // 行结尾添加结束命令
     buf_HOR[area->x2 + 3] = 0x00;
     buf_HOR[area->x2 + 4] = 0x00;
+    buf_HOR[area->x2 + 5] = 0x00;
+    buf_HOR[area->x2 + 6] = 0x00;
+    buf_HOR[area->x2 + 7] = 0x00;
+    buf_HOR[area->x2 + 8] = 0x00;
     //推送一行
     jdi_display.pushPixelsDMA(buf_HOR, BUF_HOR_NUM);
     //delay(500);
@@ -173,96 +274,16 @@ void my_disp_flush2(lv_display_t *disp, const lv_area_t *area, uint8_t *color_p)
   lv_disp_flush_ready(disp);
 }
 
-void demo_label()
-{
-  /*更改活动屏幕的背景色*/
-  // lv_obj_set_style_bg_color(lv_screen_active(), lv_color_make(255, 0, 255), LV_PART_MAIN);
-
-  /*Create a white label, set its text and align it to the center*/
-  // lv_obj_t * label = lv_label_create(lv_screen_active());
-  // lv_label_set_text(label, "Hello world");
-  // lv_obj_set_style_text_color(lv_screen_active(), lv_color_hex(0xffffff), LV_PART_MAIN);
-  // lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
-
-  /*lv_obj_t *ta1 = lv_textarea_create(lv_scr_act());
-  lv_obj_set_size(ta1, 70, 30);
-  lv_obj_align(ta1, LV_ALIGN_CENTER, 0, -25);
-  lv_obj_set_style_bg_color(ta1, lv_color_make(255, 0, 0), LV_STATE_DEFAULT);*/
-
-  // 设置文本框的大小和位置
-  /*
-  lv_obj_t *ta1 = lv_textarea_create(lv_scr_act());
-  lv_obj_set_size(ta1, 70, 30);
-  lv_obj_align(ta1, LV_ALIGN_CENTER, 0, 30);
-  lv_obj_set_style_bg_color(ta1, lv_color_make(255, 0, 0), LV_STATE_DEFAULT); // rgb
-  */
-
-  // 设置文本框的大小和位置
-  lv_obj_t *ta2 = lv_textarea_create(lv_scr_act());
-  lv_obj_set_size(ta2, 70, 30);
-  lv_obj_align(ta2, LV_ALIGN_CENTER, 0, -25);
-  lv_obj_set_style_bg_color(ta2, lv_color_make(0, 0, 255), LV_STATE_DEFAULT); // rgb
-
-  lv_obj_t *label2 = lv_label_create(lv_scr_act());
-  //lv_label_set_long_mode(label2, LV_LABEL_LONG_SCROLL);
-  //lv_obj_set_width(label2, 70 - 4);
-  lv_obj_align(label2, LV_ALIGN_CENTER, 0, -25);
-  lv_obj_set_style_text_color(label2, lv_color_make(255, 255, 255), LV_PART_MAIN); // 设置字体颜色
-  //lv_label_set_text_fmt(label2, "%d", 123);
-  lv_label_set_text(label2, "a ba a ba");
-
-  // 设置文本框的大小和位置
-  lv_obj_t *ta = lv_textarea_create(lv_scr_act());
-  lv_obj_set_size(ta, 124, 30);
-  lv_obj_align(ta, LV_ALIGN_CENTER, 0, -56);
-  lv_obj_set_style_bg_color(ta, lv_color_make(0, 255, 0), LV_STATE_DEFAULT); // rgb
-
-  lv_obj_t *label = lv_label_create(lv_scr_act());
-  lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
-  lv_obj_set_width(label, 124 - 4);
-  lv_label_set_text(label, "Hello Arduino, I'm LVGL! -V9.1.0");
-  lv_obj_align(label, LV_ALIGN_CENTER, 0, -56);
-}
-
-void demo_img()
-{
-  // 1.准备一张图片
-  LV_IMG_DECLARE(maomao);
-  // 2.创建一个lv_img对象
-  lv_obj_t *img1 = lv_image_create(lv_screen_active());
-  // 3.给对象设置图片
-  lv_image_set_src(img1, &maomao);
-  // 4.设置图片位置
-  lv_obj_align(img1, LV_ALIGN_BOTTOM_MID, 0, 0);
-}
-
-void demo_gif()
-{
-  /*LV_IMG_DECLARE(yqs);
-  lv_obj_t *gif2 = lv_gif_create(lv_screen_active());
-  lv_gif_set_src(gif2, &yqs);
-  lv_obj_align(gif2, LV_ALIGN_TOP_MID, 0, 0);*/
-
-  // 1.准备一张图片
-  LV_IMG_DECLARE(qft);
-  // 2.创建一个lv_img对象
-  lv_obj_t *gif1 = lv_gif_create(lv_screen_active());
-  // 3.给对象设置图片
-  lv_gif_set_src(gif1, &qft);
-  // 4.设置图片位置
-  lv_obj_align(gif1, LV_ALIGN_BOTTOM_MID, 0, 0);
-}
-
 void setup()
 {
   Serial.begin(115200);
   delay(3000);
-  Serial.println("1111");
+  Serial.println("开始");
   jdi_init();
   lvgl_init();
-  demo_label();
-  //demo_img();
   demo_gif();
+  //demo_label();
+  //demo_img();
 }
 uint32_t time11 = 0;
 
@@ -275,6 +296,12 @@ void loop()
   lv_task_handler(); /* 让 GUI 去做它该做的事 */
 
   lv_tick_inc(int(millis() - last_time));
+
+  /*if (millis() - time11 > 3000)
+  {
+    time11 = millis();
+    doudong = !doudong;
+  }*/
 }
 
 void jdi_init()

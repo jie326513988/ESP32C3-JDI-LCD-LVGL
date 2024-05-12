@@ -54,7 +54,7 @@ typedef enum {
 void lv_obj_set_pos(lv_obj_t * obj, int32_t x, int32_t y);
 
 /**
- * Set the x coordinate of an object
+ * 设置对象的x坐标
  * @param obj       pointer to an object
  * @param x         new x coordinate
  * @note            With default alignment it's the distance from the top left corner

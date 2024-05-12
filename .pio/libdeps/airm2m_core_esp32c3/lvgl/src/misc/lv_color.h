@@ -324,8 +324,8 @@ static inline lv_color_t lv_color_hex3(uint32_t c)
 }
 
 /**
- * Convert am RGB888 color to RGB565 stored in `uint16_t`
- * @param color     and RGB888 color
+ * 将am RGB888颜色转换为存储在`uint16_t中的RGB565`
+ * @param color     和RGB888颜色
  * @return          `color` as RGB565 on `uin16_t`
  */
 uint16_t lv_color_to_u16(lv_color_t color);

@@ -142,7 +142,7 @@ struct _lv_anim_t {
     lv_anim_get_value_cb_t get_value_cb; /**< Get the current value in relative mode*/
     void * user_data;                    /**< Custom user data*/
     lv_anim_path_cb_t path_cb;         /**< Describe the path (curve) of animations*/
-    int32_t start_value;               /**< Start value*/
+    int32_t start_value;               /**< 起始值*/
     int32_t current_value;             /**< Current value*/
     int32_t end_value;                 /**< End value*/
     int32_t duration;                /**< Animation time in ms*/
@@ -157,7 +157,7 @@ struct _lv_anim_t {
 
     uint8_t early_apply  : 1;    /**< 1: Apply start value immediately even is there is `delay`*/
 
-    /*Animation system use these - user shouldn't set*/
+    /*动画系统使用这些-用户不应该设置*/
     uint32_t last_timer_run;
     uint8_t playback_now : 1; /**< Play back is in progress*/
     uint8_t run_round : 1;    /**< Indicates the animation has run in this round*/
@@ -200,7 +200,7 @@ static inline void lv_anim_set_var(lv_anim_t * a, void * var)
 }
 
 /**
- * Set a function to animate `var`
+ * 设置要设置动画的函数`var`
  * @param a         pointer to an initialized `lv_anim_t` variable
  * @param exec_cb   a function to execute during animation
  *                  LVGL's built-in functions can be used.
@@ -297,7 +297,7 @@ static inline void lv_anim_set_get_value_cb(lv_anim_t * a, lv_anim_get_value_cb_
 }
 
 /**
- * Set a function call when the animation is completed
+ * 设置动画完成时的函数调用
  * @param a             pointer to an initialized `lv_anim_t` variable
  * @param completed_cb  a function call when the animation is fully completed
  */

@@ -46,7 +46,7 @@
 
 #if LV_USE_STDLIB_MALLOC == LV_STDLIB_BUILTIN
 /*可用于“lv_malloc（）”的内存大小（以字节为单位）（>=2kB）*/
-#define LV_MEM_SIZE (64 * 1024U) /*[bytes]*/
+#define LV_MEM_SIZE (128 * 1024U) /*[bytes]*/
 
 /*“lv_malloc（）”的内存扩展大小（以字节为单位）*/
 #define LV_MEM_POOL_EXPAND_SIZE 0
@@ -764,7 +764,7 @@
 
 /*1: 显示CPU使用率和FPS计数
  * Requires `LV_USE_SYSMON = 1`*/
-#define LV_USE_PERF_MONITOR 0
+#define LV_USE_PERF_MONITOR 1
 #if LV_USE_PERF_MONITOR
 #define LV_USE_PERF_MONITOR_POS LV_ALIGN_BOTTOM_RIGHT
 
