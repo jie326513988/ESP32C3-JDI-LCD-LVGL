@@ -7,3 +7,6 @@ GUI：LVGL9开源GUI<br>
 交互方式：3向拨轮，未完成<br>
 
 VScode打开，安装插件platformio，然后重启会自动安装esp32核心框架
+<br><br>
+使用了SPI DMA加速传输<br>
+可以选择是否开启抖动<br>
