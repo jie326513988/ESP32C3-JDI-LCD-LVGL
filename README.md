@@ -5,6 +5,8 @@ IDE:VScode+platformio<br>
 GUI：LVGL9开源GUI<br>
 屏幕：[JDI Memory LCD 低功耗](https://item.taobao.com/item.htm?_u=7mddnvb47eb&id=717207551128&spm=a1z09.2.0.0.3ff52e8dBRWNlM)<br>
 交互方式：3向拨轮，未完成<br>
+立创开源链接
+https://oshwhub.com/jie326513988/cyber-pendant
 
 VScode打开，安装插件platformio，然后重启会自动安装esp32核心框架
 <br><br>
