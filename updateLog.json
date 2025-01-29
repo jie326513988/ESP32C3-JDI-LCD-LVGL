@@ -2,5 +2,5 @@
     "version": "014",
     "address": "",
     "size": 0,
-    "content": "1.增加WiFi选择界面，可以切换已保存的wifi\n2.配网增加MQTT HA相关设置\n3.优化eeprom保存方式\n5.缩短一些设置界面的间距，使其更加紧凑\n4.新春快乐"
+    "content": "1.增加WiFi选择界面，可以切换已保存的wifi\n2.配网增加MQTT HA相关设置\n3.优化eeprom保存方式\n4.缩短一些设置界面的间距，使其更加紧凑\n5.新春快乐"
 }
