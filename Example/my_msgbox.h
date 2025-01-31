@@ -49,6 +49,33 @@ lv_anim_path_ease_in_out 开始和结束都很慢
 lv_anim_path_overshoot 超过结束值
 lv_anim_path_bounce 从最终值反弹一点（比如撞墙）
 */
+
+// 弹窗函数声明
+void my_msgbox_exit(uint32_t delay_ms);
+void my_msgbox_forceSend(String title_in, String text_in, uint16_t time = 0,
+                         String button = "", lv_event_cb_t event_cb = NULL);
+void my_msgbox_send(String title_in, String text_in, uint16_t time = 0,
+                    String button = "", lv_event_cb_t event_cb = NULL);
+void my_msgbox(String title, String text, uint16_t time = 0,
+               String button = "", lv_event_cb_t event_cb = NULL);
+void my_msgbox_loop();
+
+// 通用 弹窗的退出返回，返回则返回至主设置页面
+void backPage_mainSet(lv_event_t *e) 
+{
+  uint8_t *data = (uint8_t *)lv_event_get_user_data(e);
+  if (data[0] == 0) // 退出
+  {
+    offLVGLTimer();     // 关闭LVGL定时器
+    my_msgbox_exit(10); // 退出弹窗
+    exitToMainSet();    // 退出至设置菜单
+  }
+  else if (data[0] == 1) // 返回
+  {
+   my_msgbox_exit(0); // 退出弹窗
+  }
+}
+
 // 弹窗动画 对X轴变化
 void my_msgbox_anim_x_cb(void *var, int32_t v) 
 {
@@ -400,20 +427,35 @@ void my_msgbox_loop()
   my_msgbox(mbox.title, mbox.text, mbox.time, mbox.button, mbox.event_cb);
 }
 
-//****** 弹窗示例 ******
+//****** 弹窗使用说明******
+/*
+   // 将my_msgbox_loop放到loop()中，在其他地方调用my_msgbox_send即可发送弹窗
+   // my_msgbox_send(title, text);      // 永久停留
+   // my_msgbox_send(title, text,1000); // 停留1000ms后退出
+   // my_msgbox_send(F("空气质量"), F("是否退出"), 0, F("退出\n返回\n"), backPage_mainSet); // 带按钮回调的弹窗
 
+    void loop()
+    {
+        xSemaphoreTake(lvgl_mutex,portMAX_DELAY);
+        lv_task_handler();        // 让 GUI 去做它该做的事
+        my_msgbox_loop();         // 弹窗任务
+        xSemaphoreGive(lvgl_mutex);
+        vTaskDelay(2);
+    }
+*/
+
+//****** 弹窗使用案例
 // 创建时钟自动校准任务
-void clockAutoCali_rtos_init()
+/*void clockAutoCali_rtos_init()
 {
-  //i2c_begin();
   xTaskCreatePinnedToCore(
-      clockAutoCali_rtos, /* 任务指针，创建任务用的那个函数名 */
-      "clockAutoCali",    /* 任务名称 */
-      8 * 1024,           /* 任务栈大小，根据需要自行设置*/
-      NULL,               /* 可选参数，一般不填*/
-      2,                  /* 优先级 */
-      &TH_clockAutoCali,  /* 任务句柄，用于后续挂起或恢复运行*/
-      0                   /* 核ID */
+      clockAutoCali_rtos, // 任务指针，创建任务用的那个函数名 
+      "clockAutoCali",    // 任务名称 
+      8 * 1024,           // 任务栈大小，根据需要自行设置
+      NULL,               // 可选参数，一般不填
+      2,                  // 优先级 
+      &TH_clockAutoCali,  // 任务句柄，用于后续挂起或恢复运行
+      0                   // 核ID 
   );
 }
 // 时钟自动校准任务
@@ -461,3 +503,4 @@ void clockAutoCali_rtos(void *param)
     vTaskDelete(NULL); // 删除自己
   }
 }
+*/
