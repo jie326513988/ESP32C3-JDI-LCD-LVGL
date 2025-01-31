@@ -436,6 +436,7 @@ void clockAutoCali_rtos(void *param)
     }
 
     //****** 连接NTP服务器
+    delay(MSGBOX_ANIM_TIME2);
     title = F("NTP服务");
     text = F("连接中");
     my_msgbox_send(title, text);
