@@ -461,46 +461,43 @@ void my_msgbox_loop()
 // 时钟自动校准任务
 void clockAutoCali_rtos(void *param)
 {
-  for (;;)
+  //****** 连接WIFI
+  String title, text;
+
+  title = F("连接WIFI");
+  text = eep_sta_ssid;
+  my_msgbox_send(title, text);
+
+  if (!connectToWifi())
   {
-    //****** 连接WIFI
-    String title, text;
-
-    title = F("连接WIFI");
-    text = eep_sta_ssid;
-    my_msgbox_send(title, text);
-
-    if (!connectToWifi())
-    {
-      // wifi连接失败
-      text = F("失败");
-      goto exit;  // 退出
-    }
-
-    //****** 连接NTP服务器
-    delay(MSGBOX_ANIM_TIME2);
-    title = F("NTP服务");
-    text = F("连接中");
-    my_msgbox_send(title, text);
-    if (!ntpConnect()) // 连接NTP服务器
-    {
-      text = F("失败");
-      goto exit; // 退出
-    }
-    delay(MSGBOX_ANIM_TIME2);
-
-    //****** 数据写入时钟芯片
-    title = F("时钟芯片");
-    text = F("写入成功");
-    if (!ntpToClockChip()) text = F("写入失败");
-
-  exit: // 退出
-    delay(MSGBOX_ANIM_TIME2);
-    WiFi.mode(WIFI_OFF);
-    my_msgbox_send(title, text, 1500);
-    bitWrite(backgroundTask, BGT_CLOCK_AUTU_CALI, 0);
-    TH_clockAutoCali = NULL;
-    vTaskDelete(NULL); // 删除自己
+    // wifi连接失败
+    text = F("失败");
+    goto exit;  // 退出
   }
+
+  //****** 连接NTP服务器
+  delay(MSGBOX_ANIM_TIME2);
+  title = F("NTP服务");
+  text = F("连接中");
+  my_msgbox_send(title, text);
+  if (!ntpConnect()) // 连接NTP服务器
+  {
+    text = F("失败");
+    goto exit; // 退出
+  }
+  delay(MSGBOX_ANIM_TIME2);
+
+  //****** 数据写入时钟芯片
+  title = F("时钟芯片");
+  text = F("写入成功");
+  if (!ntpToClockChip()) text = F("写入失败");
+
+exit: // 退出
+  delay(MSGBOX_ANIM_TIME2);
+  WiFi.mode(WIFI_OFF);
+  my_msgbox_send(title, text, 1500);
+  bitWrite(backgroundTask, BGT_CLOCK_AUTU_CALI, 0);
+  TH_clockAutoCali = NULL;
+  vTaskDelete(NULL); // 删除自己
 }
 */
