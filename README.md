@@ -1,3 +1,4 @@
+# [硬件地址oshwhub.com](https://oshwhub.com/jie326513988/cyber-pendant)
 IDE：VScode+platformio<br>
 框架：Arduino<br>
 芯片：ESP32C3<br>
@@ -5,25 +6,25 @@ GUI：LVGL9<br>
 屏幕：JDI Memory LCD 不息屏也能保持极低功耗<br>
 交互方式：3向拨轮，ADC分压采样模式（开机长按10秒进入按键ADC校准）<br>
 可TYPEC外接扩展模块，目前支持NMEA0183定位协议<br>
-* 单屏幕底板链接<br>
-* 扩展模块链接<br>
-* 学习笔记<br>
-* BILIBILI视频合集<br>
-* 固件下载地址<br>
+* [单屏幕底板链接](https://oshwhub.com/jie326513988/jdi_mip_arduino)<br>
+* [扩展模块链接](https://oshwhub.com/jie326513988/dian-yuan-tong-xun-mo-kuai-_bq24074)<br>
+* [学习笔记](https://oshwhub.com/jie326513988/dian-yuan-tong-xun-mo-kuai-_bq24074)<br>
+* [BILIBILI视频合集](https://space.bilibili.com/16758526/lists?sid=4472852)<br>
+* [固件下载地址](https://oshwhub.com/jie326513988/dian-yuan-tong-xun-mo-kuai-_bq24074)<br>
 <img src="/Introducing pictures/1 (3).jpg" width="500">
 <br>
 <img src="/Introducing pictures/1 (1).jpg" width="500">
 
 ### 制作注意事项
-板厚1.0<br>
-ESP32-C3要后缀为FH4的版本，因为自带4mb的Flash，板子没有Flash芯片<br>
-ESP32-C3FH4用锡膏+热风枪或加热台比较好焊<br>
-屏幕插座带点的一端对应PCB丝印的点<br>
-先使用加热台或热风枪焊接ESP32-C3和屏幕插座，再使用热风枪将加速度计和电量计吹上去<br>
-光固化打印建议：上壳窗口太薄易变形需要硬一点的材料<br>
-FDM打印建议：螺丝柱易断裂最好就涂点橡胶胶水强化<br>
-尼龙打印建议：打印了两套，一个上壳有缝一个正常，推荐尼龙<br><br>
-外壳安装步骤<br>
+- 板厚1.0<br>
+- ESP32-C3要后缀为FH4的版本，因为自带4mb的Flash，板子没有Flash芯片<br>
+- ESP32-C3FH4用锡膏+热风枪或加热台比较好焊<br>
+- 屏幕插座带点的一端对应PCB丝印的点<br>
+- 先使用加热台或热风枪焊接ESP32-C3和屏幕插座，再使用热风枪将加速度计和电量计吹上去<br>
+- 光固化打印建议：上壳窗口太薄易变形需要硬一点的材料<br>
+- FDM打印建议：螺丝柱易断裂最好就涂点橡胶胶水强化<br>
+- 尼龙打印建议：打印了两套，一个上壳有缝一个正常，推荐尼龙<br>
+### 外壳安装步骤<br>
 1.安装打印的拨杆<br>
 2.安装屏幕，放不下的用刀片刮一下屏幕卡位四周角落即可<br>
 3.安装屏幕支架和PCB<br>
