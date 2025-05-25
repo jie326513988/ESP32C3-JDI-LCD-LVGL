@@ -11,6 +11,8 @@ GUI：LVGL9<br>
 * BILIBILI视频合集<br>
 * 固件下载地址<br>
 <img src="/Introducing pictures/1 (3).jpg" width="500">
+<br>
+<img src="/Introducing pictures/1 (1).jpg" width="500">
 
 ### 制作注意事项
 板厚1.0<br>
@@ -37,7 +39,9 @@ PA1.0x3mm螺丝<br>
 三向拨轮 FT-007<br>
 AXE510127D座子<br>
 裸屏已被倒完，现在只剩带背光触摸的封装屏（还未做接口适配）<br>
-
+<img src="/Introducing pictures/1 (2).jpg" width="500">
+<br>
+<img src="/Introducing pictures/1 (4).jpg" width="200">
 ### 关于扩展模块<br>
 依然使用捡垃圾捡来电池管理板子，拆出上面的BQ24074芯片，做成带TYPEC带通讯带电池管理的模块（模块完善后开放），<br>
 再飞线加上各功能模块，加上外壳即可组成一个一个不同的模块，使用TYPEC接口与主机进行通讯，<br>
@@ -45,7 +49,11 @@ AXE510127D座子<br>
 目前实现卫星模块，是NMEA0183协议的都行。<br>
 自己做模块的话将模块的TX接主控typec的DP，需要共地。<br>
 左：一体式，右：分体式<br>
-
+<img src="/Introducing pictures/1 (1).webp" width="300">
+<br>
+<img src="/Introducing pictures/1 (5).jpg" width="300">
+<br>
+<img src="/Introducing pictures/1 (1).png" width="300">
 ### 项目属性<br>
 本项目为首次公开，为本人原创项目。项目未曾在别的比赛中获奖。<br>
 本项目不公开源码，但提供配置好的带LVGL框架的源码<br>
@@ -60,7 +68,9 @@ AXE510127D座子<br>
 4.选择波特率，直接拉满<br>
 5.点击START开始，失败就多点几次<br>
 烧录成功首次开机会进入按键校准界面<br>
-
+<img src="/Introducing pictures/1 (2).jpg" width="300">
+<br>
+<img src="/Introducing pictures/1 (7).jpg" width="300">
 ### 项目进度<br>
 * 软件<br>
   * LVGL9
@@ -97,4 +107,5 @@ AXE510127D座子<br>
   * 使用贴片蜂鸣器，三极管驱动，用于播放midi音乐和闹钟
 ### 其他
 屏幕驱动库
+<br>
 LVGL
