@@ -86,7 +86,7 @@ lv_obj_t * lv_textarea_create(lv_obj_t * parent);
 
 /**
  * Insert a character to the current cursor position.
- * To add a wide char, e.g. 'Á' use `_lv_text_encoded_conv_wc('Á')`
+ * To add a wide char, e.g. 'Á' use `lv_text_encoded_conv_wc('Á')`
  * @param obj       pointer to a text area object
  * @param c         a character (e.g. 'a')
  */
@@ -181,7 +181,7 @@ void lv_textarea_set_accepted_chars(lv_obj_t * obj, const char * list);
 void lv_textarea_set_max_length(lv_obj_t * obj, uint32_t num);
 
 /**
- * In `LV_EVENT_INSERT` the text which planned to be inserted can be replaced by an other text.
+ * In `LV_EVENT_INSERT` the text which planned to be inserted can be replaced by another text.
  * It can be used to add automatic formatting to the text area.
  * @param obj       pointer to a text area object
  * @param txt       pointer to a new string to insert. If `""` no text will be added.

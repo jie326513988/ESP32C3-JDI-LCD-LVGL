@@ -59,7 +59,7 @@
 #define tcNum 2              // Timer/Counter for parallel write strobe PWM
 #define wrPeripheral PIO_CCL // Use CCL to invert write strobe
 
-// DMA transfer-in-progress indicator and callback
+// DMA传输进行中指示器和回调
 static volatile bool dma_busy = false;
 static void dma_callback(Adafruit_ZeroDMA *dma) { dma_busy = false; }
 

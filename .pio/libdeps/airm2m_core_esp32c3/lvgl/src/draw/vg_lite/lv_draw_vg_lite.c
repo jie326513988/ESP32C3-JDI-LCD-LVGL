@@ -72,7 +72,9 @@ void lv_draw_vg_lite_init(void)
     unit->base_unit.delete_cb = draw_delete;
 
     lv_vg_lite_image_dsc_init(unit);
-    lv_vg_lite_grad_init(unit);
+#if LV_USE_VECTOR_GRAPHIC
+    lv_vg_lite_grad_init(unit, LV_VG_LITE_GRAD_CACHE_CNT);
+#endif
     lv_vg_lite_path_init(unit);
     lv_vg_lite_decoder_init();
 }
@@ -173,13 +175,13 @@ static int32_t draw_dispatch(lv_draw_unit_t * draw_unit, lv_layer_t * layer)
         return -1;
     }
 
-    void * buf = lv_draw_layer_alloc_buf(layer);
-    if(!buf) {
+    /* Return if target buffer format is not supported. */
+    if(!lv_vg_lite_is_dest_cf_supported(layer->color_format)) {
         return -1;
     }
 
-    /* Return if target buffer format is not supported. */
-    if(!lv_vg_lite_is_dest_cf_supported(layer->draw_buf->header.cf)) {
+    void * buf = lv_draw_layer_alloc_buf(layer);
+    if(!buf) {
         return -1;
     }
 
@@ -202,6 +204,12 @@ static int32_t draw_dispatch(lv_draw_unit_t * draw_unit, lv_layer_t * layer)
 static int32_t draw_evaluate(lv_draw_unit_t * draw_unit, lv_draw_task_t * task)
 {
     LV_UNUSED(draw_unit);
+
+    /* Return if target buffer format is not supported. */
+    const lv_draw_dsc_base_t * base_dsc = task->draw_dsc;
+    if(!lv_vg_lite_is_dest_cf_supported(base_dsc->layer->color_format)) {
+        return -1;
+    }
 
     switch(task->type) {
         case LV_DRAW_TASK_TYPE_LABEL:
@@ -244,7 +252,9 @@ static int32_t draw_delete(lv_draw_unit_t * draw_unit)
     lv_draw_vg_lite_unit_t * unit = (lv_draw_vg_lite_unit_t *)draw_unit;
 
     lv_vg_lite_image_dsc_deinit(unit);
+#if LV_USE_VECTOR_GRAPHIC
     lv_vg_lite_grad_deinit(unit);
+#endif
     lv_vg_lite_path_deinit(unit);
     lv_vg_lite_decoder_deinit();
     return 1;

@@ -38,24 +38,23 @@ typedef enum {
     LV_DISPLAY_ROTATION_270
 } lv_display_rotation_t;
 
-typedef enum
-{
+typedef enum {
     /**
-     * 使用缓冲区来渲染屏幕的较小部分。
-     * 这样，缓冲区可以比显示器小，以节省RAM。建议至少使用1/10屏幕大小的缓冲区。
+     * Use the buffer(s) to render the screen is smaller parts.
+     * This way the buffers can be smaller then the display to save RAM. At least 1/10 screen size buffer(s) are recommended.
      */
     LV_DISPLAY_RENDER_MODE_PARTIAL,
 
     /**
-     * 缓冲区必须具有屏幕大小，LVGL将渲染到缓冲区的正确位置。
-     * 这样，缓冲区总是包含整个图像。只有更改后的ares才会更新。
-     * 有了2个缓冲区，缓冲区的内容会自动保持同步，在flush_cb中只需要更改地址。
+     * The buffer(s) has to be screen sized and LVGL will render into the correct location of the buffer.
+     * This way the buffer always contain the whole image. Only the changed ares will be updated.
+     * With 2 buffers the buffers' content are kept in sync automatically and in flush_cb only address change is required.
      */
     LV_DISPLAY_RENDER_MODE_DIRECT,
 
     /**
-     *即使只更改了一个像素，也要始终重新绘制整个屏幕。
-     *flush_cb中只有2个缓冲区，需要更改地址。
+     * Always redraw the whole screen even if only one pixel has been changed.
+     * With 2 buffers in flush_cb only and address change is required.
      */
     LV_DISPLAY_RENDER_MODE_FULL,
 } lv_display_render_mode_t;
@@ -263,12 +262,12 @@ void lv_display_set_render_mode(lv_display_t * disp, lv_display_render_mode_t re
 void lv_display_set_flush_cb(lv_display_t * disp, lv_display_flush_cb_t flush_cb);
 
 /**
- * Set a callback to be used while LVGL is waiting flushing to be finished.
- * It can do any complex logic to wait, including semaphores, mutexes, polling flags, etc.
- * If not set the `disp->flushing` flag is used which can be cleared with `lv_display_flush_ready()`
- * @param disp      pointer to a display
- * @param wait_cb   a callback to call while LVGL is waiting for flush ready.
- *                  If NULL `lv_display_flush_ready()` can be used to signal that flushing is ready.
+ *设置一个回调，以便在LVGL等待冲洗完成时使用。
+ *它可以执行任何复杂的逻辑等待，包括信号量、互斥、轮询标志等。
+ *如果没有设置，则使用“disp->flushing”标志，可以用“lv_display_flush_ready（）”清除该标志`
+ *@param 显示指针
+ *@param wait_cb在LVGL等待刷新就绪时调用的回调。
+ *如果NULL `lv_display_flush_ready（）`可用于表示冲洗准备就绪。
  */
 void lv_display_set_flush_wait_cb(lv_display_t * disp, lv_display_flush_wait_cb_t wait_cb);
 
@@ -309,17 +308,17 @@ bool lv_display_get_antialiasing(lv_display_t * disp);
 //! @cond Doxygen_Suppress
 
 /**
- * Call from the display driver when the flushing is finished
- * @param disp      pointer to display whose `flush_cb` was called
+*冲洗完成后，从显示驱动程序调用
+*@param disp指针，用于显示其`flush_cb`被调用的对象
  */
 LV_ATTRIBUTE_FLUSH_READY void lv_display_flush_ready(lv_display_t * disp);
 
 /**
- * Tell if it's the last area of the refreshing process.
- * Can be called from `flush_cb` to execute some special display refreshing if needed when all areas area flushed.
- * @param disp      pointer to display
- * @return          true: it's the last area to flush;
- *                  false: there are other areas too which will be refreshed soon
+ * 判断这是否是刷新过程的最后一个区域。
+ * 当所有区域都被刷新时，如果需要，可以从`flush_cb`调用以执行一些特殊的显示刷新。
+ *@param 显示指针
+ *@return true：这是最后一个要刷新的区域；
+ *false：还有其他区域也将很快刷新
  */
 LV_ATTRIBUTE_FLUSH_READY bool lv_display_flush_is_last(lv_display_t * disp);
 
@@ -363,7 +362,7 @@ lv_obj_t * lv_display_get_layer_sys(lv_display_t * disp);
 
 /**
  * Return the bottom layer. The bottom layer is the same on all screen and it is under the normal screen layer.
- * It's visible only if the the screen is transparent.
+ * It's visible only if the screen is transparent.
  * @param disp      pointer to display (NULL to use the default screen)
  * @return          pointer to the bottom layer object
  */
@@ -387,8 +386,8 @@ void lv_screen_load_anim(lv_obj_t * scr, lv_screen_load_anim_t anim_type, uint32
                          bool auto_del);
 
 /**
- * 获取默认显示器的活动屏幕
- * @return          指向活动屏幕的指针
+ * 获取默认显示的活动屏幕
+ * @return          pointer to the active screen
  */
 static inline lv_obj_t * lv_screen_active(void)
 {
@@ -396,7 +395,7 @@ static inline lv_obj_t * lv_screen_active(void)
 }
 
 /**
- * Get the top layer  of the default display
+ * 获取默认显示的顶层
  * @return          pointer to the top layer
  */
 static inline lv_obj_t * lv_layer_top(void)
@@ -405,7 +404,7 @@ static inline lv_obj_t * lv_layer_top(void)
 }
 
 /**
- * Get the system layer  of the default display
+ * 获取默认显示的系统层
  * @return          pointer to the sys layer
  */
 static inline lv_obj_t * lv_layer_sys(void)
@@ -427,11 +426,11 @@ static inline lv_obj_t * lv_layer_bottom(void)
  *--------------------*/
 
 /**
- * Add an event handler to the display
- * @param disp          pointer to a display
- * @param event_cb      an event callback
- * @param filter        event code to react or `LV_EVENT_ALL`
- * @param user_data     optional user_data
+ * 将事件处理程序添加到显示中
+ * @param disp          显示器指针
+ * @param event_cb      事件回调
+ * @param filter        要反应的事件代码或`LV_event_ALL`
+ * @param user_data     可选用户数据
  */
 void lv_display_add_event_cb(lv_display_t * disp, lv_event_cb_t event_cb, lv_event_code_t filter, void * user_data);
 
@@ -536,6 +535,13 @@ void lv_display_set_driver_data(lv_display_t * disp, void * driver_data);
 void * lv_display_get_user_data(lv_display_t * disp);
 void * lv_display_get_driver_data(lv_display_t * disp);
 lv_draw_buf_t * lv_display_get_buf_active(lv_display_t * disp);
+
+/**
+ * Rotate an area in-place according to the display's rotation
+ * @param disp      pointer to a display
+ * @param area      pointer to an area to rotate
+ */
+void lv_display_rotate_area(lv_display_t * disp, lv_area_t * area);
 
 /**********************
  *      MACROS

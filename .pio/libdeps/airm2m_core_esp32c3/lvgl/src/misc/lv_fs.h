@@ -14,9 +14,7 @@ extern "C" {
  *      INCLUDES
  *********************/
 #include "../lv_conf_internal.h"
-
-#include <stdint.h>
-#include <stdbool.h>
+#include "lv_types.h"
 
 /*********************
  *      DEFINES
@@ -33,20 +31,21 @@ extern "C" {
 /**
  * Errors in the file system module.
  */
-enum _lv_fs_res_t {
+enum _lv_fs_res_t
+{
     LV_FS_RES_OK = 0,
-    LV_FS_RES_HW_ERR,     /*Low level hardware error*/
-    LV_FS_RES_FS_ERR,     /*Error in the file system structure*/
-    LV_FS_RES_NOT_EX,     /*Driver, file or directory is not exists*/
-    LV_FS_RES_FULL,       /*Disk full*/
-    LV_FS_RES_LOCKED,     /*The file is already opened*/
-    LV_FS_RES_DENIED,     /*Access denied. Check 'fs_open' modes and write protect*/
-    LV_FS_RES_BUSY,       /*The file system now can't handle it, try later*/
-    LV_FS_RES_TOUT,       /*Process time outed*/
-    LV_FS_RES_NOT_IMP,    /*Requested function is not implemented*/
-    LV_FS_RES_OUT_OF_MEM, /*Not enough memory for an internal operation*/
-    LV_FS_RES_INV_PARAM,  /*Invalid parameter among arguments*/
-    LV_FS_RES_UNKNOWN,    /*Other unknown error*/
+    LV_FS_RES_HW_ERR,     /*低级硬件错误*/
+    LV_FS_RES_FS_ERR,     /*文件系统结构错误*/
+    LV_FS_RES_NOT_EX,     /*驱动程序、文件或目录不存在*/
+    LV_FS_RES_FULL,       /*磁盘已满*/
+    LV_FS_RES_LOCKED,     /*文件已打开*/
+    LV_FS_RES_DENIED,     /*访问被拒绝。检查“fs_open”模式和写保护*/
+    LV_FS_RES_BUSY,       /*文件系统现在无法处理它,请稍后再试*/
+    LV_FS_RES_TOUT,       /*进程超时*/
+    LV_FS_RES_NOT_IMP,    /*请求的函数未实现*/
+    LV_FS_RES_OUT_OF_MEM, /*内存不足,无法进行内部操作*/
+    LV_FS_RES_INV_PARAM,  /*参数中的参数无效*/
+    LV_FS_RES_UNKNOWN,    /*其他未知错误*/
 };
 
 #ifdef DOXYGEN
@@ -240,8 +239,8 @@ lv_fs_res_t lv_fs_tell(lv_fs_file_t * file_p, uint32_t * pos);
 lv_fs_res_t lv_fs_dir_open(lv_fs_dir_t * rddir_p, const char * path);
 
 /**
- * Read the next filename form a directory.
- * The name of the directories will begin with '/'
+ * 从目录中读取下一个文件名。
+ * 目录的名称将以“/”开头
  * @param rddir_p   pointer to an initialized 'fs_dir_t' variable
  * @param fn        pointer to a buffer to store the filename
  * @param fn_len    length of the buffer to store the filename

@@ -13,8 +13,6 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
-#include <stdbool.h>
-#include <stdint.h>
 #include "lv_types.h"
 #include "../lv_conf_internal.h"
 
@@ -39,65 +37,68 @@ typedef struct {
 /**
  * Type of event being sent to the object.
  */
-typedef enum {
+typedef enum
+{
     LV_EVENT_ALL = 0,
 
-    /** Input device events*/
-    LV_EVENT_PRESSED,             /**< The object has been pressed*/
-    LV_EVENT_PRESSING,            /**< The object is being pressed (called continuously while pressing)*/
-    LV_EVENT_PRESS_LOST,          /**< The object is still being pressed but slid cursor/finger off of the object */
-    LV_EVENT_SHORT_CLICKED,       /**< The object was pressed for a short period of time, then released it. Not called if scrolled.*/
-    LV_EVENT_LONG_PRESSED,        /**< Object has been pressed for at least `long_press_time`.  Not called if scrolled.*/
-    LV_EVENT_LONG_PRESSED_REPEAT, /**< Called after `long_press_time` in every `long_press_repeat_time` ms.  Not called if scrolled.*/
-    LV_EVENT_CLICKED,             /**< Called on release if not scrolled (regardless to long press)*/
-    LV_EVENT_RELEASED,            /**< Called in every cases when the object has been released*/
-    LV_EVENT_SCROLL_BEGIN,        /**< Scrolling begins. The event parameter is a pointer to the animation of the scroll. Can be modified*/
-    LV_EVENT_SCROLL_THROW_BEGIN,
-    LV_EVENT_SCROLL_END,          /**< Scrolling ends*/
-    LV_EVENT_SCROLL,              /**< Scrolling*/
-    LV_EVENT_GESTURE,             /**< A gesture is detected. Get the gesture with `lv_indev_get_gesture_dir(lv_indev_active());` */
-    LV_EVENT_KEY,                 /**< A key is sent to the object. Get the key with `lv_indev_get_key(lv_indev_active());`*/
-    LV_EVENT_ROTARY,              /**< An encoder or wheel was rotated. Get the rotation count with `lv_event_get_rotary_diff(e);`*/
-    LV_EVENT_FOCUSED,             /**< The object is focused*/
-    LV_EVENT_DEFOCUSED,           /**< The object is defocused*/
-    LV_EVENT_LEAVE,               /**< The object is defocused but still selected*/
-    LV_EVENT_HIT_TEST,            /**< Perform advanced hit-testing*/
-    LV_EVENT_INDEV_RESET,         /**< Indev has been reset*/
+    /** 输入设备事件*/
+    LV_EVENT_PRESSED,             /**< 对象已被按下*/
+    LV_EVENT_PRESSING,            /**< 对象正在被按下（按下时持续调用）*/
+    LV_EVENT_PRESS_LOST,          /**< 对象仍被按下,但光标/手指已从对象上滑出 */
+    LV_EVENT_SHORT_CLICKED,       /**< 对象被按下一小段时间,然后松开。如果滚动则不调用。*/
+    LV_EVENT_LONG_PRESSED,        /**< 对象已被按下至少 `long_press_time`。如果滚动则不调用。*/
+    LV_EVENT_LONG_PRESSED_REPEAT, /**< 在每个 `long_press_repeat_time` 毫秒的 `long_press_time` 之后调用。如果滚动则不调用。*/
+    LV_EVENT_CLICKED,             /**< 如果未滚动则在释放时调用（无论长按与否）*/
+    LV_EVENT_RELEASED,            /**< 在任何情况下,当对象被释放时调用*/
+    LV_EVENT_SCROLL_BEGIN,        /**< 滚动开始。事件参数是指向滚动动画的指针。可以修改*/
+    LV_EVENT_SCROLL_THROW_BEGIN, // 滚动 投掷 开始？
+    LV_EVENT_SCROLL_END,  /**< 滚动结束*/
+    LV_EVENT_SCROLL,      /**< 滚动*/
+    LV_EVENT_GESTURE,     /**< 检测到手势。使用 `lv_indev_get_gesture_dir(lv_indev_active());` 获取手势 */
+    LV_EVENT_KEY,         /**< 向对象发送了一个键。使用 `lv_indev_get_key(lv_indev_active());` 获取该键*/
+    LV_EVENT_ROTARY,      /**< 编码器或滚轮已旋转。使用 `lv_event_get_rotary_diff(e);` 获取旋转计数*/
+    LV_EVENT_FOCUSED,     /**< 对象已聚焦*/
+    LV_EVENT_DEFOCUSED,   /**< 对象已失焦*/
+    LV_EVENT_LEAVE,       /**< 对象已失焦但仍处于选中状态*/
+    LV_EVENT_HIT_TEST,    /**< 执行高级命中测试*/
+    LV_EVENT_INDEV_RESET, /**< Indev 已重置*/
+    LV_EVENT_HOVER_OVER,  /**< Indev 悬停在对象上*/
+    LV_EVENT_HOVER_LEAVE, /**< Indev 悬停离开对象*/
 
     /** Drawing events*/
-    LV_EVENT_COVER_CHECK,        /**< Check if the object fully covers an area. The event parameter is `lv_cover_check_info_t *`.*/
-    LV_EVENT_REFR_EXT_DRAW_SIZE, /**< Get the required extra draw area around the object (e.g. for shadow). The event parameter is `int32_t *` to store the size.*/
-    LV_EVENT_DRAW_MAIN_BEGIN,    /**< Starting the main drawing phase*/
-    LV_EVENT_DRAW_MAIN,          /**< Perform the main drawing*/
-    LV_EVENT_DRAW_MAIN_END,      /**< Finishing the main drawing phase*/
-    LV_EVENT_DRAW_POST_BEGIN,    /**< Starting the post draw phase (when all children are drawn)*/
-    LV_EVENT_DRAW_POST,          /**< Perform the post draw phase (when all children are drawn)*/
-    LV_EVENT_DRAW_POST_END,      /**< Finishing the post draw phase (when all children are drawn)*/
-    LV_EVENT_DRAW_TASK_ADDED,      /**< Adding a draw task */
+    LV_EVENT_COVER_CHECK,        /** 23 <检查对象是否完全覆盖某个区域。事件参数为`lv_cover_check_info_t*`*/
+    LV_EVENT_REFR_EXT_DRAW_SIZE, /** 24 <在对象周围获得所需的额外绘制区域（例如阴影）。事件参数为“int32_t*”以存储大小*/
+    LV_EVENT_DRAW_MAIN_BEGIN,    /** 25 <开始主绘图阶段*/
+    LV_EVENT_DRAW_MAIN,          /** 26 <执行主绘图*/
+    LV_EVENT_DRAW_MAIN_END,      /** 27 <完成主绘图阶段*/
+    LV_EVENT_DRAW_POST_BEGIN,    /** 28 <开始绘制后阶段（绘制所有子项时）*/
+    LV_EVENT_DRAW_POST,          /** 29 <执行绘制后阶段（绘制所有子项时）*/
+    LV_EVENT_DRAW_POST_END,      /** 30 <完成绘制后阶段（绘制所有子项时）*/
+    LV_EVENT_DRAW_TASK_ADDED,    /** 31 <添加绘图任务*/
 
-    /** Special events*/
-    LV_EVENT_VALUE_CHANGED,       /**< The object's value has changed (i.e. slider moved)*/
-    LV_EVENT_INSERT,              /**< A text is inserted to the object. The event data is `char *` being inserted.*/
-    LV_EVENT_REFRESH,             /**< Notify the object to refresh something on it (for the user)*/
-    LV_EVENT_READY,               /**< A process has finished*/
-    LV_EVENT_CANCEL,              /**< A process has been cancelled */
+    /**特殊活动*/
+    LV_EVENT_VALUE_CHANGED, /**<对象的值已更改（即滑块已移动）*/
+    LV_EVENT_INSERT,        /**<将文本插入到对象中。正在插入事件数据“char*”*/
+    LV_EVENT_REFRESH,       /**<通知对象刷新上面的内容（为用户）*/
+    LV_EVENT_READY,         /**<进程已完成*/
+    LV_EVENT_CANCEL,        /**<进程已取消*/
 
     /** Other events*/
-    LV_EVENT_CREATE,              /**< Object is being created*/
-    LV_EVENT_DELETE,              /**< Object is being deleted*/
-    LV_EVENT_CHILD_CHANGED,       /**< Child was removed, added, or its size, position were changed */
-    LV_EVENT_CHILD_CREATED,       /**< Child was created, always bubbles up to all parents*/
-    LV_EVENT_CHILD_DELETED,       /**< Child was deleted, always bubbles up to all parents*/
-    LV_EVENT_SCREEN_UNLOAD_START, /**< A screen unload started, fired immediately when scr_load is called*/
-    LV_EVENT_SCREEN_LOAD_START,   /**< A screen load started, fired when the screen change delay is expired*/
-    LV_EVENT_SCREEN_LOADED,       /**< A screen was loaded*/
-    LV_EVENT_SCREEN_UNLOADED,     /**< A screen was unloaded*/
-    LV_EVENT_SIZE_CHANGED,        /**< Object coordinates/size have changed*/
-    LV_EVENT_STYLE_CHANGED,       /**< Object's style has changed*/
-    LV_EVENT_LAYOUT_CHANGED,      /**< The children position has changed due to a layout recalculation*/
-    LV_EVENT_GET_SELF_SIZE,       /**< Get the internal size of a widget*/
+    LV_EVENT_CREATE,              /**< 37 正在创建对象*/ 
+    LV_EVENT_DELETE,              /**< 38 正在删除对象*/
+    LV_EVENT_CHILD_CHANGED,       /**< 39 子项已删除、添加，或其大小、位置已更改 */
+    LV_EVENT_CHILD_CREATED,       /**< 40 孩子是被创造出来的，总是向所有的父母冒泡*/
+    LV_EVENT_CHILD_DELETED,       /**< 41 孩子被删除了，总是向所有家长冒泡*/
+    LV_EVENT_SCREEN_UNLOAD_START, /**< 42 屏幕卸载开始，调用scr_load时立即启动*/
+    LV_EVENT_SCREEN_LOAD_START,   /**< 43 屏幕加载已启动，当屏幕更改延迟到期时激发*/
+    LV_EVENT_SCREEN_LOADED,       /**< 44 已加载屏幕*/
+    LV_EVENT_SCREEN_UNLOADED,     /**< 45 屏幕已卸载*/
+    LV_EVENT_SIZE_CHANGED,        /**< 46 对象坐标/大小已更改*/
+    LV_EVENT_STYLE_CHANGED,       /**< 47 对象的样式已更改*/
+    LV_EVENT_LAYOUT_CHANGED,      /**< 48 由于布局重新计算，子级位置已更改*/
+    LV_EVENT_GET_SELF_SIZE,       /**< 49 获取小部件的内部大小*/
 
-    /** Events of optional LVGL components*/
+    /** 可选LVGL组件事件*/
     LV_EVENT_INVALIDATE_AREA,
     LV_EVENT_RESOLUTION_CHANGED,
     LV_EVENT_COLOR_FORMAT_CHANGED,
@@ -113,10 +114,10 @@ typedef enum {
 
     LV_EVENT_VSYNC,
 
-    _LV_EVENT_LAST,                 /** Number of default events*/
+    _LV_EVENT_LAST, /** Number of default events*/
 
-    LV_EVENT_PREPROCESS = 0x8000,   /** This is a flag that can be set with an event so it's processed
-                                      before the class default event processing */
+    LV_EVENT_PREPROCESS = 0x8000, /** This is a flag that can be set with an event so it's processed
+                                    before the class default event processing */
 } lv_event_code_t;
 
 typedef lv_array_t lv_event_list_t;

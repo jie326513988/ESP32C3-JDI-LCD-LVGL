@@ -15,9 +15,7 @@ extern "C" {
  *********************/
 #include "../lv_conf_internal.h"
 #include "lv_types.h"
-#include <stdbool.h>
-#include <stdint.h>
-#include <stddef.h>
+#include "lv_math.h"
 
 /*********************
  *      DEFINES
@@ -217,13 +215,13 @@ bool _lv_area_is_point_on(const lv_area_t * a_p, const lv_point_t * p_p, int32_t
 /**
  * Check if two area has common parts
  * @param a1_p pointer to an area.
- * @param a2_p pointer to an other area
+ * @param a2_p pointer to another area
  * @return false: a1_p and a2_p has no common parts
  */
 bool _lv_area_is_on(const lv_area_t * a1_p, const lv_area_t * a2_p);
 
 /**
- * Check if an area is fully on an other
+ * Check if an area is fully on another
  * @param ain_p pointer to an area which could be in 'aholder_p'
  * @param aholder_p pointer to an area which could involve 'ain_p'
  * @param radius radius of `aholder_p` (e.g. for rounded rectangle)
@@ -232,7 +230,7 @@ bool _lv_area_is_on(const lv_area_t * a1_p, const lv_area_t * a2_p);
 bool _lv_area_is_in(const lv_area_t * ain_p, const lv_area_t * aholder_p, int32_t radius);
 
 /**
- * Check if an area is fully out of an other
+ * Check if an area is fully out of another
  * @param aout_p pointer to an area which could be in 'aholder_p'
  * @param aholder_p pointer to an area which could involve 'ain_p'
  * @param radius radius of `aholder_p` (e.g. for rounded rectangle)
@@ -248,7 +246,7 @@ bool _lv_area_is_out(const lv_area_t * aout_p, const lv_area_t * aholder_p, int3
 bool _lv_area_is_equal(const lv_area_t * a, const lv_area_t * b);
 
 /**
- * Align an area to an other
+ * Align an area to another
  * @param base an area where the other will be aligned
  * @param to_align the area to align
  * @param align `LV_ALIGN_...`
@@ -264,7 +262,7 @@ void lv_area_align(const lv_area_t * base, lv_area_t * to_align, lv_align_t alig
  * @param scale_x       horizontal zoom, 256 means 100%
  * @param scale_y       vertical zoom, 256 means 100%
  * @param pivot         pointer to the pivot point of the transformation
- * @param zoom_first    true: zoom first and rotate after that; else: opssoite order
+ * @param zoom_first    true: zoom first and rotate after that; else: opposite order
  */
 void lv_point_transform(lv_point_t * point, int32_t angle, int32_t scale_x, int32_t scale_y, const lv_point_t * pivot,
                         bool zoom_first);
@@ -277,7 +275,7 @@ void lv_point_transform(lv_point_t * point, int32_t angle, int32_t scale_x, int3
  * @param scale_x       horizontal zoom, 256 means 100%
  * @param scale_y       vertical zoom, 256 means 100%
  * @param pivot         pointer to the pivot point of the transformation
- * @param zoom_first    true: zoom first and rotate after that; else: opssoite order
+ * @param zoom_first    true: zoom first and rotate after that; else: opposite order
  */
 void lv_point_array_transform(lv_point_t * points, size_t count, int32_t angle, int32_t scale_x, int32_t scale_y,
                               const lv_point_t * pivot,
@@ -346,20 +344,24 @@ static inline void lv_point_precise_swap(lv_point_precise_t * p1, lv_point_preci
 
 #define LV_COORD_SET_SPEC(x)    ((x) | _LV_COORD_TYPE_SPEC)
 
-/*Special coordinates*/
-#define LV_PCT(x)               (x < 0 ? LV_COORD_SET_SPEC(1000 - (x)) : LV_COORD_SET_SPEC(x))
-#define LV_COORD_IS_PCT(x)      ((LV_COORD_IS_SPEC(x) && _LV_COORD_PLAIN(x) <= 2000))
-#define LV_COORD_GET_PCT(x)     (_LV_COORD_PLAIN(x) > 1000 ? 1000 - _LV_COORD_PLAIN(x) : _LV_COORD_PLAIN(x))
-#define LV_SIZE_CONTENT         LV_COORD_SET_SPEC(2001)
-
-LV_EXPORT_CONST_INT(LV_SIZE_CONTENT);
-
 /*Max coordinate value*/
 #define LV_COORD_MAX            ((1 << _LV_COORD_TYPE_SHIFT) - 1)
 #define LV_COORD_MIN            (-LV_COORD_MAX)
 
+/*Special coordinates*/
+#define LV_SIZE_CONTENT         LV_COORD_SET_SPEC(LV_COORD_MAX)
+#define _LV_PCT_STORED_MAX      (LV_COORD_MAX - 1)
+#if _LV_PCT_STORED_MAX % 2 != 0
+#error _LV_PCT_STORED_MAX should be an even number
+#endif
+#define _LV_PCT_POS_MAX         (_LV_PCT_STORED_MAX / 2)
+#define LV_PCT(x)               (LV_COORD_SET_SPEC(((x) < 0 ? (_LV_PCT_POS_MAX - LV_MAX((x), -_LV_PCT_POS_MAX)) : LV_MIN((x), _LV_PCT_POS_MAX))))
+#define LV_COORD_IS_PCT(x)      ((LV_COORD_IS_SPEC(x) && _LV_COORD_PLAIN(x) <= _LV_PCT_STORED_MAX))
+#define LV_COORD_GET_PCT(x)     (_LV_COORD_PLAIN(x) > _LV_PCT_POS_MAX ? _LV_PCT_POS_MAX - _LV_COORD_PLAIN(x) : _LV_COORD_PLAIN(x))
+
 LV_EXPORT_CONST_INT(LV_COORD_MAX);
 LV_EXPORT_CONST_INT(LV_COORD_MIN);
+LV_EXPORT_CONST_INT(LV_SIZE_CONTENT);
 
 /**
  * Convert a percentage value to `int32_t`.

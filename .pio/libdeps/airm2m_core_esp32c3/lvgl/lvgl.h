@@ -13,10 +13,7 @@ extern "C" {
 /***************************
  * CURRENT VERSION OF LVGL
  ***************************/
-#define LVGL_VERSION_MAJOR 9
-#define LVGL_VERSION_MINOR 1
-#define LVGL_VERSION_PATCH 0
-#define LVGL_VERSION_INFO  ""
+#include "lv_version.h"
 
 /*********************
  *      INCLUDES
@@ -65,6 +62,7 @@ extern "C" {
 #include "src/widgets/led/lv_led.h"
 #include "src/widgets/line/lv_line.h"
 #include "src/widgets/list/lv_list.h"
+#include "src/widgets/lottie/lv_lottie.h"
 #include "src/widgets/menu/lv_menu.h"
 #include "src/widgets/msgbox/lv_msgbox.h"
 #include "src/widgets/roller/lv_roller.h"

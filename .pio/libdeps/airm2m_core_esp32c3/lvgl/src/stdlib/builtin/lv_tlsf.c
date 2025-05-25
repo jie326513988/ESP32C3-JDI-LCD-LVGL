@@ -1,11 +1,11 @@
 #include "../../lv_conf_internal.h"
 #if LV_USE_STDLIB_MALLOC == LV_STDLIB_BUILTIN
 
-#include <limits.h>
 #include "lv_tlsf.h"
 #include "../../stdlib/lv_string.h"
 #include "../../misc/lv_log.h"
 #include "../../misc/lv_assert.h"
+#include "../../misc/lv_types.h"
 
 #undef  printf
 #define printf LV_LOG_ERROR
@@ -80,7 +80,7 @@
     && defined (__GNUC_PATCHLEVEL__)
 
 #if defined (__SNC__)
-/* SNC for Playstation 3. */
+/* SNC for PlayStation 3. */
 
 tlsf_decl int tlsf_ffs(unsigned int word)
 {
@@ -586,8 +586,8 @@ static void remove_free_block(control_t * control, block_header_t * block, int f
 {
     block_header_t * prev = block->prev_free;
     block_header_t * next = block->next_free;
-    tlsf_assert(prev && "prev_free field can not be null");
-    tlsf_assert(next && "next_free field can not be null");
+    tlsf_assert(prev && "prev_free field cannot be null");
+    tlsf_assert(next && "next_free field cannot be null");
     next->prev_free = prev;
     prev->next_free = next;
 

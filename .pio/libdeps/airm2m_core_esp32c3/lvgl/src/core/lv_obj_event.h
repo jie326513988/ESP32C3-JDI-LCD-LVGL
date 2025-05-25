@@ -13,7 +13,6 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
-#include <stdbool.h>
 #include "../misc/lv_types.h"
 #include "../misc/lv_event.h"
 #include "../indev/lv_indev.h"
@@ -29,7 +28,7 @@ extern "C" {
 /**
  * Used as the event parameter of ::LV_EVENT_HIT_TEST to check if an `point` can click the object or not.
  * `res` should be set like this:
- *   - If already set to `false` an other event wants that point non clickable. If you want to respect it leave it as `false` or set `true` to overwrite it.
+ *   - If already set to `false` another event wants that point non clickable. If you want to respect it leave it as `false` or set `true` to overwrite it.
  *   - If already set `true` and `point` shouldn't be clickable set to `false`
  *   - If already set to `true` you agree that `point` can click the object leave it as `true`
  */
@@ -60,7 +59,7 @@ typedef struct {
  **********************/
 
 /**
- * Send an event to the object
+ * 向对象发送事件
  * @param obj           pointer to an object
  * @param event_code    the type of the event from `lv_event_t`
  * @param param         arbitrary data depending on the widget type and the event. (Usually `NULL`)
@@ -69,7 +68,7 @@ typedef struct {
 lv_result_t lv_obj_send_event(lv_obj_t * obj, lv_event_code_t event_code, void * param);
 
 /**
- * Used by the widgets internally to call the ancestor widget types's event handler
+ * 由小部件内部使用，以调用祖先小部件类型的事件处理程序
  * @param class_p   pointer to the class of the widget (NOT the ancestor class)
  * @param e         pointer to the event descriptor
  * @return          LV_RESULT_OK: the target object was not deleted in the event; LV_RESULT_INVALID: it was deleted in the event_code
@@ -77,7 +76,7 @@ lv_result_t lv_obj_send_event(lv_obj_t * obj, lv_event_code_t event_code, void *
 lv_result_t lv_obj_event_base(const lv_obj_class_t * class_p, lv_event_t * e);
 
 /**
- * Get the current target of the event. It's the object which event handler being called.
+ * 获取事件的当前目标。它是被调用事件处理程序的对象。
  * If the event is not bubbled it's the same as "original" target.
  * @param e     pointer to the event descriptor
  * @return      the target of the event_code
@@ -85,21 +84,21 @@ lv_result_t lv_obj_event_base(const lv_obj_class_t * class_p, lv_event_t * e);
 lv_obj_t * lv_event_get_current_target_obj(lv_event_t * e);
 
 /**
- * Get the object originally targeted by the event. It's the same even if the event is bubbled.
+ * 获取事件最初的目标对象。即使事件是冒泡的，情况也是一样的。
  * @param e     pointer to the event descriptor
  * @return      pointer to the original target of the event_code
  */
 lv_obj_t * lv_event_get_target_obj(lv_event_t * e);
 
 /**
- * Add an event handler function for an object.
- * Used by the user to react on event which happens with the object.
- * An object can have multiple event handler. They will be called in the same order as they were added.
- * @param obj       pointer to an object
- * @param filter    an event code (e.g. `LV_EVENT_CLICKED`) on which the event should be called. `LV_EVENT_ALL` can be used to receive all the events.
- * @param event_cb  the new event function
- * @param           user_data custom data data will be available in `event_cb`
- * @return          handler to the event. It can be used in `lv_obj_remove_event_dsc`.
+ * 为对象添加事件处理程序函数。
+ * 用户用于对对象发生的事件做出反应。
+ * 一个对象可以有多个事件处理程序。它们将按照添加时的顺序被调用。
+ * @param obj       指向对象的指针
+ * @param filter    应调用事件的事件代码（例如“LV_event_CLICKED”）`LV_EVENT_ALL`可用于接收所有事件。
+ * @param event_cb  新的事件功能
+ * @param           user_data 自定义数据将在`event_cb中可用`
+ * @return          事件的处理程序。它可以在`lv_obj_remove_event_dsc`中使用。
  */
 lv_event_dsc_t * lv_obj_add_event_cb(lv_obj_t * obj, lv_event_cb_t event_cb, lv_event_code_t filter, void * user_data);
 
@@ -114,7 +113,7 @@ bool lv_obj_remove_event_cb(lv_obj_t * obj, lv_event_cb_t event_cb);
 bool lv_obj_remove_event_dsc(lv_obj_t * obj, lv_event_dsc_t * dsc);
 
 /**
- * Remove an event_cb with user_data
+ * 删除带有user_data的event_cb
  * @param obj           pointer to a obj
  * @param event_cb      the event_cb of the event to remove
  * @param user_data     user_data

@@ -21,10 +21,29 @@
 // SOFTWARE.
 
 #include <JDI_MIP_Display.h>
+#include <Arduino.h>
 
+#if defined(ESP32)
 #include "driver/spi_master.h"
 spi_device_handle_t dmaHAL; // DMA SPA句柄
 spi_host_device_t spi_host = (spi_host_device_t)1; // 绘制一次然后冻结
+#endif
+
+void (*JDI_MIP_Display::dma_callback)(void) = nullptr;
+//DMA传输完成的回调
+void IRAM_ATTR JDI_MIP_Display::spi_dma_callback(spi_transaction_t *trans)
+{
+    //Serial.println("DMA传输已完成");
+    if (dma_callback)
+    {
+        dma_callback();
+    }
+}
+// 在文件的全局范围内添加这个函数
+extern "C" void IRAM_ATTR spi_dma_callback_wrapper(spi_transaction_t *trans)
+{
+    JDI_MIP_Display::spi_dma_callback(trans);
+}
 
 JDI_MIP_Display::JDI_MIP_Display() : Adafruit_GFX(DISPLAY_WIDTH, DISPLAY_HEIGHT)
 {
@@ -33,7 +52,7 @@ JDI_MIP_Display::JDI_MIP_Display() : Adafruit_GFX(DISPLAY_WIDTH, DISPLAY_HEIGHT)
     _frontlight = PIN_FRONTLIGHT;
 }
 
-void JDI_MIP_Display::begin(int sck, int miso, int mosi, int ss, int fre, bool dmaEN)
+void JDI_MIP_Display::begin(int sck, int miso, int mosi, int ss, int fre, bool dmaEN, bool end_cb)
 {
     _background = COLOR_BLACK;
     digitalWrite(_scs, LOW);
@@ -46,7 +65,7 @@ void JDI_MIP_Display::begin(int sck, int miso, int mosi, int ss, int fre, bool d
 #endif
 
     // 是否开启DMA Is DMA enabled
-    if (dmaEN) initDMA(sck, miso, mosi, ss, fre); 
+    if (dmaEN) initDMA(sck, miso, mosi, ss, fre, end_cb);
     else if (sck == -1 && miso == -1 && mosi == -1 && ss == -1 && fre == -1)
     {
         SPI.begin();
@@ -106,7 +125,23 @@ void JDI_MIP_Display::clearScreen()
         digitalWrite(_scs, LOW);
     }
 }
-
+void JDI_MIP_Display::noUpdate()
+{
+    if (DMA_Enabled)
+    {
+        uint8_t buf[2];
+        buf[0] = CMD_NO_UPDATE;
+        buf[1] = 0x00;
+        _pushPixelsDMA(buf, 2);
+    }
+    else
+    {
+        digitalWrite(_scs, HIGH);
+        SPI.transfer(CMD_NO_UPDATE);
+        SPI.transfer(0x00);
+        digitalWrite(_scs, LOW);
+    }
+}
 void JDI_MIP_Display::sendLineCommand(char *line_cmd, int line)
 {
     if ((line < 0) || (line >= HEIGHT))
@@ -252,6 +287,8 @@ void JDI_MIP_Display::frontlightOff()
     digitalWrite(_frontlight, LOW);
 }
 
+
+#if defined(ESP32)
 /***************************************************************************************
 ** 函数名称：dmaBusy            Function name: dmaBusy
 ** 描述：检查DMA是否繁忙         Description: Check if DMA is busy
@@ -283,11 +320,11 @@ void JDI_MIP_Display::dmaWait(void)
   if (!DMA_Enabled || !spiBusyCheck)  return;
   spi_transaction_t *rtrans;
   esp_err_t ret;
-  for (int i = 0; i < spiBusyCheck; ++i)
-  {
-    ret = spi_device_get_trans_result(dmaHAL, &rtrans, portMAX_DELAY);
-    assert(ret == ESP_OK);
-  }
+  //for (int i = 0; i < spiBusyCheck; ++i)
+  //{
+  ret = spi_device_get_trans_result(dmaHAL, &rtrans, portMAX_DELAY);
+  assert(ret == ESP_OK);
+  //}
   spiBusyCheck = 0;
 }
 
@@ -326,13 +363,13 @@ void JDI_MIP_Display::_pushPixelsDMA(uint8_t *image, uint32_t len)
     assert(ret == ESP_OK);
     // Serial.print("ret:"); Serial.println(ret);
     spiBusyCheck++;
+    //Serial.print("spiBusyCheck:"); Serial.println(spiBusyCheck);
 }
-
 /***************************************************************************************
 ** 函数名称：initDMA                            Function name: initDMA
 ** 描述：初始化DMA引擎-如果初始化正常则返回true   Description: Initialize DMA engine - returns true if initialization is normal
 ***************************************************************************************/
-bool JDI_MIP_Display::initDMA(int sck, int miso, int mosi, int ss, int fre)
+bool JDI_MIP_Display::initDMA(int sck, int miso, int mosi, int ss, int fre, bool end_cb)
 {
     if (DMA_Enabled) return false;
 
@@ -354,7 +391,7 @@ bool JDI_MIP_Display::initDMA(int sck, int miso, int mosi, int ss, int fre)
         .data5_io_num = -1,
         .data6_io_num = -1,
         .data7_io_num = -1,
-        .max_transfer_sz = 1024, // TFT屏幕尺寸 DISPLAY_WIDTH * DISPLAY_HEIGHT * 2 + 8
+        .max_transfer_sz = 4096, // 最大发送长度
         .flags = 0,
         .intr_flags = 0};
 
@@ -375,9 +412,11 @@ bool JDI_MIP_Display::initDMA(int sck, int miso, int mosi, int ss, int fre)
         .input_delay_ns = 0,
         .spics_io_num = pin,
         .flags = SPI_DEVICE_POSITIVE_CS, // 0, SPI_DEVICE_NO_DUMMY
-        .queue_size = 3, // 队列数量
+        .queue_size = 1, // 队列数量
         .pre_cb = 0,     // dc_callback，//回调处理D/C行
         .post_cb = 0};
+
+    if (end_cb != 0) devcfg.post_cb = spi_dma_callback_wrapper;
 
     // spi总线初始化 esp32c3只能auto DMA 通道
     ret = spi_bus_initialize(spi_host, &buscfg, SPI_DMA_CH_AUTO);
@@ -396,10 +435,19 @@ bool JDI_MIP_Display::initDMA(int sck, int miso, int mosi, int ss, int fre)
 ** 函数名称：deInitDMA          Function name: deInitDMA
 ** 说明：断开DMA引擎与SPI的连接  Description: Disconnect the DMA engine from SPI
 ***************************************************************************************/
-void JDI_MIP_Display::deInitDMA(void)
+void JDI_MIP_Display::_deInitDMA(void)
 {
   if (!DMA_Enabled) return;
   spi_bus_remove_device(dmaHAL); // spi总线移除装置
   spi_bus_free(spi_host);        // spi总线自由
   DMA_Enabled = false;
 }
+void JDI_MIP_Display::deInitDMA(void)
+{
+  _deInitDMA();
+}
+void JDI_MIP_Display::registerDMACallback(void (*callback)(void)) 
+{
+    dma_callback = callback;
+}
+#endif

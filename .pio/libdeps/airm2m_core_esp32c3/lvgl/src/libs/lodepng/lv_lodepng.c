@@ -17,6 +17,10 @@
  *      DEFINES
  *********************/
 
+#define DECODER_NAME    "LODEPNG"
+
+#define image_cache_draw_buf_handlers &(LV_GLOBAL_DEFAULT()->image_cache_draw_buf_handlers)
+
 /**********************
  *      TYPEDEFS
  **********************/
@@ -50,6 +54,8 @@ void lv_lodepng_init(void)
     lv_image_decoder_set_info_cb(dec, decoder_info);
     lv_image_decoder_set_open_cb(dec, decoder_open);
     lv_image_decoder_set_close_cb(dec, decoder_close);
+
+    dec->name = DECODER_NAME;
 }
 
 void lv_lodepng_deinit(void)
@@ -76,7 +82,7 @@ void lv_lodepng_deinit(void)
  */
 static lv_result_t decoder_info(lv_image_decoder_t * decoder, const void * src, lv_image_header_t * header)
 {
-    (void) decoder; /*Unused*/
+    LV_UNUSED(decoder); /*Unused*/
     lv_image_src_t src_type = lv_image_src_get_type(src);          /*Get the source type*/
 
     /*If it's a PNG file...*/
@@ -117,7 +123,7 @@ static lv_result_t decoder_info(lv_image_decoder_t * decoder, const void * src, 
         const uint32_t * size = ((uint32_t *)img_dsc->data) + 4;
         const uint8_t magic[] = {0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a};
         if(data_size < sizeof(magic)) return LV_RESULT_INVALID;
-        if(memcmp(magic, img_dsc->data, sizeof(magic))) return LV_RESULT_INVALID;
+        if(lv_memcmp(magic, img_dsc->data, sizeof(magic))) return LV_RESULT_INVALID;
 
         header->cf = LV_COLOR_FORMAT_ARGB8888;
 
@@ -181,27 +187,30 @@ static lv_result_t decoder_open(lv_image_decoder_t * decoder, lv_image_decoder_d
     if(dsc->src_type == LV_IMAGE_SRC_FILE) lv_free((void *)png_data);
 
     if(!decoded) {
-        LV_LOG_WARN("Error decoding PNG\n");
+        LV_LOG_WARN("Error decoding PNG");
         return LV_RESULT_INVALID;
     }
 
     lv_draw_buf_t * adjusted = lv_image_decoder_post_process(dsc, decoded);
     if(adjusted == NULL) {
-        lv_draw_buf_destroy(decoded);
+        lv_draw_buf_destroy_user(image_cache_draw_buf_handlers, decoded);
         return LV_RESULT_INVALID;
     }
 
     /*The adjusted draw buffer is newly allocated.*/
     if(adjusted != decoded) {
-        lv_draw_buf_destroy(decoded);
+        lv_draw_buf_destroy_user(image_cache_draw_buf_handlers, decoded);
         decoded = adjusted;
     }
 
     dsc->decoded = decoded;
 
-    if(dsc->args.no_cache) return LV_RES_OK;
+    if(dsc->args.no_cache) return LV_RESULT_OK;
 
-#if LV_CACHE_DEF_SIZE > 0
+    /*If the image cache is disabled, just return the decoded image*/
+    if(!lv_image_cache_is_enabled()) return LV_RESULT_OK;
+
+    /*Add the decoded image to the cache*/
     lv_image_cache_data_t search_key;
     search_key.src_type = dsc->src_type;
     search_key.src = dsc->src;
@@ -213,7 +222,6 @@ static lv_result_t decoder_open(lv_image_decoder_t * decoder, lv_image_decoder_d
         return LV_RESULT_INVALID;
     }
     dsc->cache_entry = entry;
-#endif
 
     return LV_RESULT_OK;    /*If not returned earlier then it failed*/
 }
@@ -228,10 +236,8 @@ static void decoder_close(lv_image_decoder_t * decoder, lv_image_decoder_dsc_t *
 {
     LV_UNUSED(decoder);
 
-    if(dsc->args.no_cache || LV_CACHE_DEF_SIZE == 0)
-        lv_draw_buf_destroy((lv_draw_buf_t *)dsc->decoded);
-    else
-        lv_cache_release(dsc->cache, dsc->cache_entry, NULL);
+    if(dsc->args.no_cache ||
+       !lv_image_cache_is_enabled()) lv_draw_buf_destroy_user(image_cache_draw_buf_handlers, (lv_draw_buf_t *)dsc->decoded);
 }
 
 static lv_draw_buf_t * decode_png_data(const void * png_data, size_t png_data_size)

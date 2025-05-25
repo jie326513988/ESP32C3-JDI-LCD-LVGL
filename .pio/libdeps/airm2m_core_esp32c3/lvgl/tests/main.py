@@ -27,6 +27,7 @@ build_only_options = {
 test_options = {
     'OPTIONS_TEST_SYSHEAP': 'Test config, system heap, 32 bit color depth',
     'OPTIONS_TEST_DEFHEAP': 'Test config, LVGL heap, 32 bit color depth',
+    'OPTIONS_TEST_VG_LITE': 'VG-Lite simulator with full config, 32 bit color depth',
 }
 
 
@@ -145,7 +146,7 @@ def generate_code_coverage_report():
 
 
 def generate_test_images():
-    invalids = (ColorFormat.UNKNOWN,)
+    invalids = (ColorFormat.UNKNOWN,ColorFormat.RAW,ColorFormat.RAW_ALPHA)
     formats = [i for i in ColorFormat if i not in invalids]
     png_path = os.path.join(lvgl_test_dir, "test_images/pngs")
     pngs = list(Path(png_path).rglob("*.[pP][nN][gG]"))

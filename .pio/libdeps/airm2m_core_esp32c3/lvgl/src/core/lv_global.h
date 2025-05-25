@@ -15,8 +15,6 @@ extern "C" {
  *********************/
 #include "../lv_conf_internal.h"
 
-#include <stdbool.h>
-
 #include "../misc/lv_types.h"
 #include "../draw/lv_draw.h"
 #if LV_USE_DRAW_SW
@@ -29,6 +27,7 @@ extern "C" {
 #include "../misc/lv_log.h"
 #include "../misc/lv_style.h"
 #include "../misc/lv_timer.h"
+#include "../osal/lv_os.h"
 #include "../others/sysmon/lv_sysmon.h"
 #include "../stdlib/builtin/lv_tlsf.h"
 
@@ -38,6 +37,8 @@ extern "C" {
 
 #include "../tick/lv_tick.h"
 #include "../layouts/lv_layout.h"
+
+#include "../misc/lv_types.h"
 
 /*********************
  *      DEFINES
@@ -100,16 +101,14 @@ typedef struct _lv_global_t {
     lv_tick_state_t tick_state;
 
     lv_draw_buf_handlers_t draw_buf_handlers;
+    lv_draw_buf_handlers_t font_draw_buf_handlers;
+    lv_draw_buf_handlers_t image_cache_draw_buf_handlers;  /**< Ensure that all assigned draw buffers
+                                                            * can be managed by image cache. */
 
     lv_ll_t img_decoder_ll;
 
-#if LV_CACHE_DEF_SIZE > 0
     lv_cache_t * img_cache;
-#endif
-
-#if LV_IMAGE_HEADER_CACHE_DEF_CNT > 0
     lv_cache_t * img_header_cache;
-#endif
 
     lv_draw_global_info_t draw_info;
 #if defined(LV_DRAW_SW_SHADOW_CACHE_SIZE) && LV_DRAW_SW_SHADOW_CACHE_SIZE > 0
@@ -163,6 +162,14 @@ typedef struct _lv_global_t {
     lv_fs_drv_t littlefs_fs_drv;
 #endif
 
+#if LV_USE_FS_ARDUINO_ESP_LITTLEFS
+    lv_fs_drv_t arduino_esp_littlefs_fs_drv;
+#endif
+
+#if LV_USE_FS_ARDUINO_SD
+    lv_fs_drv_t arduino_sd_fs_drv;
+#endif
+
 #if LV_USE_FREETYPE
     struct _lv_freetype_context_t * ft_context;
 #endif
@@ -187,11 +194,7 @@ typedef struct _lv_global_t {
     lv_style_t fe_list_button_style;
 #endif
 
-#if LV_USE_SYSMON && LV_USE_PERF_MONITOR
-    lv_sysmon_backend_data_t sysmon_perf;
-#endif
-
-#if LV_USE_SYSMON && LV_USE_MEM_MONITOR
+#if LV_USE_MEM_MONITOR
     lv_sysmon_backend_data_t sysmon_mem;
 #endif
 
@@ -206,6 +209,10 @@ typedef struct _lv_global_t {
 
 #if LV_USE_NUTTX
     struct _lv_nuttx_ctx_t * nuttx_ctx;
+#endif
+
+#if LV_USE_OS != LV_OS_NONE
+    lv_mutex_t lv_general_mutex;
 #endif
 
     void * user_data;

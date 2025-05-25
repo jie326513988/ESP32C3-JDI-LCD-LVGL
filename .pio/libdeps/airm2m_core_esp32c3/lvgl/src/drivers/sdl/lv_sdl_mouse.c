@@ -132,8 +132,9 @@ void _lv_sdl_mouse_handler(SDL_Event * event)
     /*Find a suitable indev*/
     lv_indev_t * indev = lv_indev_get_next(NULL);
     while(indev) {
-        if(lv_indev_get_display(indev) == disp && lv_indev_get_type(indev) == LV_INDEV_TYPE_POINTER) {
-            break;
+        if(lv_indev_get_type(indev) == LV_INDEV_TYPE_POINTER) {
+            /*If disp is NULL for any reason use the first indev with the correct type*/
+            if(disp == NULL || lv_indev_get_display(indev) == disp) break;
         }
         indev = lv_indev_get_next(indev);
     }
@@ -188,7 +189,7 @@ void _lv_sdl_mouse_handler(SDL_Event * event)
         case SDL_MOUSEWHEEL:
 #if LV_SDL_MOUSEWHEEL_MODE == LV_SDL_MOUSEWHEEL_MODE_CROWN
 #ifdef __EMSCRIPTEN__
-            /*Escripten scales it wrong*/
+            /*Emscripten scales it wrong*/
             if(event->wheel.y < 0) dsc->diff++;
             if(event->wheel.y > 0) dsc->diff--;
 #else

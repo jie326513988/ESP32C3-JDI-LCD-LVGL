@@ -629,6 +629,7 @@ static void style_init(my_theme_t * theme)
     lv_style_set_line_width(&theme->styles.scale, LV_DPX(2));
     lv_style_set_arc_color(&theme->styles.scale, theme->color_text);
     lv_style_set_arc_width(&theme->styles.scale, LV_DPX(2));
+    lv_style_set_length(&theme->styles.scale, LV_DPX(6));
 #endif
 }
 
@@ -640,7 +641,7 @@ lv_theme_t * lv_theme_default_init(lv_display_t * disp, lv_color_t color_primary
                                    const lv_font_t * font)
 {
     /*This trick is required only to avoid the garbage collection of
-     *styles' data if LVGL is used in a binding (e.g. Micropython)
+     *styles' data if LVGL is used in a binding (e.g. MicroPython)
      *In a general case styles could be in a simple `static lv_style_t my_style...` variables*/
 
     if(!lv_theme_default_is_inited()) {
@@ -727,8 +728,9 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
     LV_UNUSED(th);
 
     my_theme_t * theme = theme_def;
+    lv_obj_t * parent = lv_obj_get_parent(obj);
 
-    if(lv_obj_get_parent(obj) == NULL) {
+    if(parent == NULL) {
         lv_obj_add_style(obj, &theme->styles.scr, 0);
         lv_obj_add_style(obj, &theme->styles.scrollbar, LV_PART_SCROLLBAR);
         lv_obj_add_style(obj, &theme->styles.scrollbar_scrolled, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
@@ -737,20 +739,19 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
 
     if(lv_obj_check_type(obj, &lv_obj_class)) {
 #if LV_USE_TABVIEW
-        lv_obj_t * parent = lv_obj_get_parent(obj);
         /*Tabview content area*/
-        if(parent && lv_obj_check_type(parent, &lv_tabview_class) && lv_obj_get_index(obj) == 1) {
+        if(lv_obj_check_type(parent, &lv_tabview_class) && lv_obj_get_child(parent, 1) == obj) {
             return;
         }
         /*Tabview button container*/
-        else if(lv_obj_check_type(parent, &lv_tabview_class) && lv_obj_get_index(obj) == 0) {
+        else if(lv_obj_check_type(parent, &lv_tabview_class) && lv_obj_get_child(parent, 0) == obj) {
             lv_obj_add_style(obj, &theme->styles.bg_color_white, 0);
             lv_obj_add_style(obj, &theme->styles.outline_primary, LV_STATE_FOCUS_KEY);
             lv_obj_add_style(obj, &theme->styles.tab_bg_focus, LV_STATE_FOCUS_KEY);
             return;
         }
         /*Tabview pages*/
-        else if(parent && lv_obj_check_type(lv_obj_get_parent(parent), &lv_tabview_class)) {
+        else if(lv_obj_check_type(lv_obj_get_parent(parent), &lv_tabview_class)) {
             lv_obj_add_style(obj, &theme->styles.pad_normal, 0);
             lv_obj_add_style(obj, &theme->styles.rotary_scroll, 0);
             lv_obj_add_style(obj, &theme->styles.scrollbar, LV_PART_SCROLLBAR);
@@ -761,13 +762,13 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
 
 #if LV_USE_WIN
         /*Header*/
-        if(lv_obj_get_index(obj) == 0 && lv_obj_check_type(lv_obj_get_parent(obj), &lv_win_class)) {
+        if(lv_obj_check_type(parent, &lv_win_class) && lv_obj_get_child(parent, 0) == obj) {
             lv_obj_add_style(obj, &theme->styles.bg_color_grey, 0);
             lv_obj_add_style(obj, &theme->styles.pad_tiny, 0);
             return;
         }
         /*Content*/
-        else if(lv_obj_get_index(obj) == 1 && lv_obj_check_type(lv_obj_get_parent(obj), &lv_win_class)) {
+        else if(lv_obj_check_type(parent, &lv_win_class) && lv_obj_get_child(parent, 1) == obj) {
             lv_obj_add_style(obj, &theme->styles.scr, 0);
             lv_obj_add_style(obj, &theme->styles.pad_normal, 0);
             lv_obj_add_style(obj, &theme->styles.scrollbar, LV_PART_SCROLLBAR);
@@ -777,7 +778,7 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
 #endif
 
 #if LV_USE_CALENDAR
-        if(lv_obj_check_type(lv_obj_get_parent(obj), &lv_calendar_class)) {
+        if(lv_obj_check_type(parent, &lv_calendar_class)) {
             /*No style*/
             return;
         }
@@ -791,9 +792,9 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
     else if(lv_obj_check_type(obj, &lv_button_class)) {
 
 #if LV_USE_TABVIEW
-        lv_obj_t * parent = lv_obj_get_parent(obj);
-        if(parent && lv_obj_get_index(parent) == 0) { /*Tabview header*/
-            if(lv_obj_check_type(lv_obj_get_parent(parent), &lv_tabview_class)) {
+        lv_obj_t * tv = lv_obj_get_parent(parent); /*parent is the tabview header*/
+        if(tv && lv_obj_get_child(tv, 0) == parent) { /*The button is on the tab view header*/
+            if(lv_obj_check_type(tv, &lv_tabview_class)) {
                 lv_obj_add_style(obj, &theme->styles.pressed, LV_STATE_PRESSED);
                 lv_obj_add_style(obj, &theme->styles.bg_color_primary_muted, LV_STATE_CHECKED);
                 lv_obj_add_style(obj, &theme->styles.tab_btn, LV_STATE_CHECKED);
@@ -818,8 +819,8 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
         lv_obj_add_style(obj, &theme->styles.disabled, LV_STATE_DISABLED);
 
 #if LV_USE_MENU
-        if(lv_obj_check_type(lv_obj_get_parent(obj), &lv_menu_sidebar_header_cont_class) ||
-           lv_obj_check_type(lv_obj_get_parent(obj), &lv_menu_main_header_cont_class)) {
+        if(lv_obj_check_type(parent, &lv_menu_sidebar_header_cont_class) ||
+           lv_obj_check_type(parent, &lv_menu_main_header_cont_class)) {
             lv_obj_add_style(obj, &theme->styles.menu_header_btn, 0);
             lv_obj_add_style(obj, &theme->styles.menu_pressed, LV_STATE_PRESSED);
         }
@@ -837,7 +838,7 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
     else if(lv_obj_check_type(obj, &lv_buttonmatrix_class)) {
 
 #if LV_USE_CALENDAR
-        if(lv_obj_check_type(lv_obj_get_parent(obj), &lv_calendar_class)) {
+        if(lv_obj_check_type(parent, &lv_calendar_class)) {
             lv_obj_add_style(obj, &theme->styles.calendar_btnm_bg, 0);
             lv_obj_add_style(obj, &theme->styles.outline_primary, LV_STATE_FOCUS_KEY);
             lv_obj_add_style(obj, &theme->styles.outline_secondary, LV_STATE_EDITED);
@@ -1124,6 +1125,7 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
     else if(lv_obj_check_type(obj, &lv_msgbox_class)) {
         lv_obj_add_style(obj, &theme->styles.card, 0);
         lv_obj_add_style(obj, &theme->styles.pad_zero, 0);
+        lv_obj_add_style(obj, &theme->styles.clip_corner, 0);
         return;
     }
     else if(lv_obj_check_type(obj, &lv_msgbox_backdrop_class)) {
@@ -1139,6 +1141,12 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
         lv_obj_add_style(obj, &theme->styles.pad_tiny, 0);
         return;
     }
+    else if(lv_obj_check_type(obj, &lv_msgbox_content_class)) {
+        lv_obj_add_style(obj, &theme->styles.scrollbar, LV_PART_SCROLLBAR);
+        lv_obj_add_style(obj, &theme->styles.scrollbar_scrolled, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
+        lv_obj_add_style(obj, &theme->styles.pad_tiny, 0);
+        return;
+    }
     else if(lv_obj_check_type(obj, &lv_msgbox_header_button_class) ||
             lv_obj_check_type(obj, &lv_msgbox_footer_button_class)) {
         lv_obj_add_style(obj, &theme->styles.btn, 0);
@@ -1149,11 +1157,6 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
         lv_obj_add_style(obj, &theme->styles.outline_primary, LV_STATE_FOCUS_KEY);
         lv_obj_add_style(obj, &theme->styles.bg_color_secondary, LV_STATE_CHECKED);
         lv_obj_add_style(obj, &theme->styles.disabled, LV_STATE_DISABLED);
-        return;
-    }
-
-    if(lv_obj_check_type(lv_obj_get_parent(obj), &lv_msgbox_class)) {
-        lv_obj_add_style(obj, &theme->styles.pad_tiny, 0);
         return;
     }
 

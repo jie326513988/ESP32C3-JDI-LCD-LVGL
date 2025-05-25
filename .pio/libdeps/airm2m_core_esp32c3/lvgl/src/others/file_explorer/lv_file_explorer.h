@@ -83,7 +83,7 @@ lv_obj_t * lv_file_explorer_create(lv_obj_t * parent);
 
 #if LV_FILE_EXPLORER_QUICK_ACCESS
 /**
- * Set file_explorer
+ * 设置file_explorer
  * @param obj   pointer to a label object
  * @param dir   the dir from 'lv_file_explorer_dir_t' enum.
  * @param path   path
@@ -93,7 +93,7 @@ void lv_file_explorer_set_quick_access_path(lv_obj_t * obj, lv_file_explorer_dir
 #endif
 
 /**
- * Set file_explorer sort
+ * 设置file_explorer排序
  * @param obj   pointer to a file explorer object
  * @param sort  the sort from 'lv_file_explorer_sort_t' enum.
  */
@@ -104,35 +104,35 @@ void lv_file_explorer_set_sort(lv_obj_t * obj, lv_file_explorer_sort_t sort);
  *====================*/
 
 /**
- * Get file explorer Selected file
+ * 获取文件资源管理器所选文件
  * @param obj   pointer to a file explorer object
  * @return      pointer to the file explorer selected file name
  */
 const char * lv_file_explorer_get_selected_file_name(const lv_obj_t * obj);
 
 /**
- * Get file explorer cur path
+ * 获取文件资源管理器当前路径
  * @param obj   pointer to a file explorer object
  * @return      pointer to the file explorer cur path
  */
 const char * lv_file_explorer_get_current_path(const lv_obj_t * obj);
 
 /**
- * Get file explorer head area obj
+ * 获取文件资源管理器头部区域obj
  * @param obj   pointer to a file explorer object
  * @return      pointer to the file explorer head area obj(lv_obj)
  */
 lv_obj_t * lv_file_explorer_get_header(lv_obj_t * obj);
 
 /**
- * Get file explorer head area obj
+ * 获取文件资源管理器头部区域obj
  * @param obj   pointer to a file explorer object
  * @return      pointer to the file explorer quick access area obj(lv_obj)
  */
 lv_obj_t * lv_file_explorer_get_quick_access_area(lv_obj_t * obj);
 
 /**
- * Get file explorer path obj(label)
+ * 获取文件资源管理器路径obj（lv_label）
  * @param obj   pointer to a file explorer object
  * @return      pointer to the file explorer path obj(lv_label)
  */
@@ -140,14 +140,14 @@ lv_obj_t * lv_file_explorer_get_path_label(lv_obj_t * obj);
 
 #if LV_FILE_EXPLORER_QUICK_ACCESS
 /**
- * Get file explorer places list obj(lv_list)
+ * 获取文件资源管理器位置列表obj（lv_list）
  * @param obj   pointer to a file explorer object
  * @return      pointer to the file explorer places list obj(lv_list)
  */
 lv_obj_t * lv_file_explorer_get_places_list(lv_obj_t * obj);
 
 /**
- * Get file explorer device list obj(lv_list)
+ * 获取文件资源管理器设备列表obj（lv_list）
  * @param obj   pointer to a file explorer object
  * @return      pointer to the file explorer device list obj(lv_list)
  */
@@ -155,14 +155,14 @@ lv_obj_t * lv_file_explorer_get_device_list(lv_obj_t * obj);
 #endif
 
 /**
- * Get file explorer file list obj(lv_table)
+ * 获取文件资源管理器文件列表obj（lv_table）
  * @param obj   pointer to a file explorer object
  * @return      pointer to the file explorer file table obj(lv_table)
  */
 lv_obj_t * lv_file_explorer_get_file_table(lv_obj_t * obj);
 
 /**
- * Set file_explorer sort
+ * 设置file_explorer排序
  * @param obj   pointer to a file explorer object
  * @return the current mode from 'lv_file_explorer_sort_t'
  */
@@ -173,9 +173,9 @@ lv_file_explorer_sort_t lv_file_explorer_get_sort(const lv_obj_t * obj);
  *====================*/
 
 /**
- * Open a specified path
+ * 打开指定路径
  * @param obj   pointer to a file explorer object
- * @param dir   pointer to the path
+ * @param dir   指向路径的指针
  */
 void lv_file_explorer_open_dir(lv_obj_t * obj, const char * dir);
 

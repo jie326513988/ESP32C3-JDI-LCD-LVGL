@@ -17,9 +17,6 @@ extern "C" {
 #include "lv_types.h"
 #include "lv_ll.h"
 
-#include <stdint.h>
-#include <stdbool.h>
-
 /*********************
  *      DEFINES
  *********************/
@@ -124,27 +121,26 @@ static inline LV_ATTRIBUTE_TIMER_HANDLER uint32_t lv_timer_handler_run_in_period
 LV_ATTRIBUTE_TIMER_HANDLER void lv_timer_periodic_handler(void);
 
 /**
- * Set the resume callback to the timer handler
+ * 将恢复回调设置为计时器处理程序
  * @param cb the function to call when timer handler is resumed
  * @param data pointer to a resume data
  */
 void lv_timer_handler_set_resume_cb(lv_timer_handler_resume_cb_t cb, void * data);
 
 /**
- * Create an "empty" timer. It needs to be initialized with at least
+ * 创建一个“空”计时器。它需要至少用初始化
  * `lv_timer_set_cb` and `lv_timer_set_period`
  * @return pointer to the created timer
  */
 lv_timer_t * lv_timer_create_basic(void);
 
 /**
- * Create a new lv_timer
- * @param timer_xcb a callback to call periodically.
- *                 (the 'x' in the argument name indicates that it's not a fully generic function because it not follows
- *                  the `func_name(object, callback, ...)` convention)
- * @param period call period in ms unit
- * @param user_data custom parameter
- * @return pointer to the new timer
+ * 创建新的lv_timer
+ * @param timer_xcb 定期呼叫的回拨。
+ *                 （参数名称中的“x”表示它不是一个完全泛型的函数，因为它不遵循“func_name（object，callback，…）”约定）
+ * @param period 呼叫周期，单位为毫秒
+ * @param user_data 自定义参数
+ * @return 指向新计时器的指针
  */
 lv_timer_t * lv_timer_create(lv_timer_cb_t timer_xcb, uint32_t period, void * user_data);
 
@@ -156,7 +152,7 @@ void lv_timer_delete(lv_timer_t * timer);
 
 /**
  * 暂停计时器。
- * @param timer 指向lv_timer的指针
+ * @param timer pointer to an lv_timer
  */
 void lv_timer_pause(lv_timer_t * timer);
 
@@ -167,36 +163,36 @@ void lv_timer_pause(lv_timer_t * timer);
 void lv_timer_resume(lv_timer_t * timer);
 
 /**
- * 将回调设置为计时器（要定期调用的函数）
- * @param timer 指向计时器的指针
+ * Set the callback to the timer (the function to call periodically)
+ * @param timer pointer to a timer
  * @param timer_cb the function to call periodically
  */
 void lv_timer_set_cb(lv_timer_t * timer, lv_timer_cb_t timer_cb);
 
 /**
- * Set new period for a lv_timer
+ * 为lv_timer设置新周期
  * @param timer pointer to a lv_timer
  * @param period the new period
  */
 void lv_timer_set_period(lv_timer_t * timer, uint32_t period);
 
 /**
- * Make a lv_timer ready. It will not wait its period.
+ * 准备一个lv_timer。它不会等待它的期限。
  * @param timer pointer to a lv_timer.
  */
 void lv_timer_ready(lv_timer_t * timer);
 
 /**
- * Set the number of times a timer will repeat.
- * @param timer pointer to a lv_timer.
- * @param repeat_count -1 : infinity;  0 : stop ;  n>0: residual times
+ * 设置计时器重复的次数。
+ * @param timer 指向lv_timer的指针。
+ * @param repeat_count -1：无穷大；0：停止；n> 0：剩余时间
  */
 void lv_timer_set_repeat_count(lv_timer_t * timer, int32_t repeat_count);
 
 /**
- * Set whether a lv_timer will be deleted automatically when it is called `repeat_count` times.
- * @param timer pointer to a lv_timer.
- * @param auto_delete true: auto delete; false: timer will be paused when it is called `repeat_count` times.
+ *设置在调用“repeat_count”次时是否自动删除lv_timer。
+ *@param timer指向lv_timer的指针。
+ *@param auto_delete true:自动删除；false：当调用“repeat_count”次时，计时器将暂停。
  */
 void lv_timer_set_auto_delete(lv_timer_t * timer, bool auto_delete);
 
@@ -208,15 +204,15 @@ void lv_timer_set_auto_delete(lv_timer_t * timer, bool auto_delete);
 void lv_timer_set_user_data(lv_timer_t * timer, void * user_data);
 
 /**
- * Reset a lv_timer.
- * It will be called the previously set period milliseconds later.
+ * 重置lv_timer。
+ * 它将在毫秒后被称为先前设置的时段。
  * @param timer pointer to a lv_timer.
  */
 void lv_timer_reset(lv_timer_t * timer);
 
 /**
- * Enable or disable the whole lv_timer handling
- * @param en true: lv_timer handling is running, false: lv_timer handling is suspended
+ * 启用或禁用整个lv_timer处理
+ * @param en true:lv_timer处理正在运行，false:lvtimer处理已暂停
  */
 void lv_timer_enable(bool en);
 

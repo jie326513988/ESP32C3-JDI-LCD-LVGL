@@ -1,7 +1,7 @@
 .. raw:: html
 
    <p align="left">
-     <a href="https://github.com/sponsors/lvgl" target="_blank"><img align="left" src="https://lvgl.io/assets/images/sponsor.png" height="32px"></a>
+     <a href="https://github.com/sponsors/lvgl" target="_blank"><img align="left" src="https://lvgl.io/github-assets//sponsor.png" height="32px"></a>
    </p>
 
    <p align="right">
@@ -12,19 +12,13 @@
 
    </p>
 
- 
-
 .. raw:: html
 
    <p align="center">
 
- 
-
 .. raw:: html
 
    </p>
-
- 
 
 .. raw:: html
 
@@ -35,11 +29,6 @@ Light and Versatile Graphics Library
 .. raw:: html
 
    </h1>
-
- 
-
-
-      
 
 .. raw:: html
 
@@ -54,7 +43,7 @@ Website \| Docs \| Forum :gb: \| Demos \| Services \| SquareLine Studio
 
 :ledger:
 Overview
------------------
+--------
 
 **実績**\  LVGL
 は、フリー＆オープンソースの組み込み用グラフィックスライブラリです。
@@ -63,7 +52,7 @@ Interface)を実現できます。 ARM, STM32, NXP, Espressif, Nuvoton, Arduino,
 RT-Thread, Zephyr, NuttX,
 Adafruitなど、業界をリードするベンダーやプロジェクトによりサポートされています。
 
-**機能豊富**\ 
+**機能豊富**\
 モダンで美しいGUIを作成するための機能をすべて備えています。
 30以上の組み込みウィジェット、強力なスタイルシステム、WEB由来のレイアウトマネージャ、多くの言語をサポートする文字グラフィックシステムなどです。
 LVGL のシステム要件は、RAM 32KB、Flash
@@ -71,7 +60,7 @@ LVGL のシステム要件は、RAM 32KB、Flash
 
 **UIエディタ**\  SquareLine Studio
 は、LVGL用のプロフェッショナル＆リーズナブルなドラッグ＆ドロップ型のUIエディターです。
-Windows、Linux、MacOS
+Windows、Linux、macOS
 で動作し、ウェブサイトへの登録なしで試すことができます。
 
 **サービス**\  LVGL LLC
@@ -114,7 +103,7 @@ Guide <https://docs-lvgl-io.translate.goog/master/porting/project.html?_x_tr_sl=
 `マルチディスプレイ <https://docs-lvgl-io.translate.goog/master/overview/display.html?_x_tr_sl=en&_x_tr_tl=ja&_x_tr_hl=ja>`__
 対応。
 
-**Binding と Build をサポート** - `Micropython
+**Binding と Build をサポート** - `MicroPython
 Binding <https://blog-lvgl-io.translate.goog/2019-02-20/micropython-bindings?_x_tr_sl=en&_x_tr_tl=ja&_x_tr_hl=ja>`__
 が LVGL API を公開。 -
 カスタムビルドシステムは使用せず、プロジェクトの他のファイルをビルドするときに、LVGLをビルド可能。
@@ -190,7 +179,7 @@ C code
 
 .. code:: c
 
-   lv_obj_t * btn = lv_btn_create(lv_scr_act());                   /*Add a button to the current screen*/
+   lv_obj_t * btn = lv_button_create(lv_screen_active());                   /*Add a button to the current screen*/
    lv_obj_center(btn);                                             /*Set its position*/
    lv_obj_set_size(btn, 100, 50);                                  /*Set its size*/
    lv_obj_add_event(btn, btn_event_cb, LV_EVENT_CLICKED, NULL); /*Assign a callback to the button*/
@@ -267,25 +256,25 @@ C code
 .. code:: c
 
 
-   lv_obj_set_flex_flow(lv_scr_act(), LV_FLEX_FLOW_COLUMN);
-   lv_obj_set_flex_align(lv_scr_act(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER);
+   lv_obj_set_flex_flow(lv_screen_active(), LV_FLEX_FLOW_COLUMN);
+   lv_obj_set_flex_align(lv_screen_active(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER);
 
    lv_obj_t * cb;
-   cb = lv_checkbox_create(lv_scr_act());
+   cb = lv_checkbox_create(lv_screen_active());
    lv_checkbox_set_text(cb, "Apple");
    lv_obj_add_event(cb, event_handler, LV_EVENT_ALL, NULL);
 
-   cb = lv_checkbox_create(lv_scr_act());
+   cb = lv_checkbox_create(lv_screen_active());
    lv_checkbox_set_text(cb, "Banana");
    lv_obj_add_state(cb, LV_STATE_CHECKED);
    lv_obj_add_event(cb, event_handler, LV_EVENT_ALL, NULL);
 
-   cb = lv_checkbox_create(lv_scr_act());
+   cb = lv_checkbox_create(lv_screen_active());
    lv_checkbox_set_text(cb, "Lemon");
    lv_obj_add_state(cb, LV_STATE_DISABLED);
    lv_obj_add_event(cb, event_handler, LV_EVENT_ALL, NULL);
 
-   cb = lv_checkbox_create(lv_scr_act());
+   cb = lv_checkbox_create(lv_screen_active());
    lv_obj_add_state(cb, LV_STATE_CHECKED | LV_STATE_DISABLED);
    lv_checkbox_set_text(cb, "Melon\nand a new line");
    lv_obj_add_event(cb, event_handler, LV_EVENT_ALL, NULL);
@@ -372,7 +361,7 @@ C code
 
 .. code:: c
 
-   lv_obj_t * slider = lv_slider_create(lv_scr_act());
+   lv_obj_t * slider = lv_slider_create(lv_screen_active());
    lv_slider_set_value(slider, 70, LV_ANIM_OFF);
    lv_obj_set_size(slider, 300, 20);
    lv_obj_center(slider);
@@ -486,20 +475,20 @@ C code
 
 .. code:: c
 
-   lv_obj_t * ltr_label = lv_label_create(lv_scr_act());
+   lv_obj_t * ltr_label = lv_label_create(lv_screen_active());
    lv_label_set_text(ltr_label, "In modern terminology, a microcontroller is similar to a system on a chip (SoC).");
    lv_obj_set_style_text_font(ltr_label, &lv_font_montserrat_16, 0);
    lv_obj_set_width(ltr_label, 310);
    lv_obj_align(ltr_label, LV_ALIGN_TOP_LEFT, 5, 5);
 
-   lv_obj_t * rtl_label = lv_label_create(lv_scr_act());
+   lv_obj_t * rtl_label = lv_label_create(lv_screen_active());
    lv_label_set_text(rtl_label,"מעבד, או בשמו המלא יחידת עיבוד מרכזית (באנגלית: CPU - Central Processing Unit).");
    lv_obj_set_style_base_dir(rtl_label, LV_BASE_DIR_RTL, 0);
    lv_obj_set_style_text_font(rtl_label, &lv_font_dejavu_16_persian_hebrew, 0);
    lv_obj_set_width(rtl_label, 310);
    lv_obj_align(rtl_label, LV_ALIGN_LEFT_MID, 5, 0);
 
-   lv_obj_t * cz_label = lv_label_create(lv_scr_act());
+   lv_obj_t * cz_label = lv_label_create(lv_screen_active());
    lv_label_set_text(cz_label,
                      "嵌入式系统（Embedded System），\n是一种嵌入机械或电气系统内部、具有专一功能和实时计算性能的计算机系统。");
    lv_obj_set_style_text_font(cz_label, &lv_font_simsun_16_cjk, 0);

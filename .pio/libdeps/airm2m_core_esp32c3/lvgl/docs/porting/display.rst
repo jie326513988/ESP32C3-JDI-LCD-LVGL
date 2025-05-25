@@ -152,6 +152,17 @@ reconfiguring the hardware. In lack of hardware display rotation support
 :cpp:expr:`lv_draw_sw_rotate` can be used to rotate the buffer in the
 ``flush_cb``.
 
+:cpp:expr:`lv_display_rotate_area(display, &area)` rotates the rendered area
+according to the current rotation settings of the display.
+
+Note that in :cpp:enumerator:`LV_DISPLAY_RENDER_MODE_DIRECT` the small changed areas
+are rendered directly in the frame buffer so they cannot be
+rotated later. Therefore in direct mode only the whole frame buffer can be rotated.
+The same is true for :cpp:enumerator:`LV_DISPLAY_RENDER_MODE_FULL`.
+
+In the case of :cpp:enumerator:`LV_DISPLAY_RENDER_MODE_PARTIAL`the small rendered areas
+can be rotated on their own before flushing to the frame buffer.
+
 Color format
 ------------
 
@@ -223,7 +234,7 @@ If you have multiple displays call :cpp:expr:`lv_display_set_default(disp1)` to
 select the display to refresh before :cpp:expr:`_lv_display_refr_timer(NULL)`.
 
 
-.. note:: that :cpp:func:`lv_timer_handler` and :cpp:func:`_lv_display_refr_timer` can not  run at the same time.
+.. note:: that :cpp:func:`lv_timer_handler` and :cpp:func:`_lv_display_refr_timer` cannot  run at the same time.
 
 
 If the performance monitor is enabled, the value of :c:macro:`LV_DEF_REFR_PERIOD` needs to be set to be

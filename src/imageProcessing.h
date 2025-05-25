@@ -4,6 +4,7 @@ uint16_t create_rgb565(uint8_t r, uint8_t g, uint8_t b)
 {
   return ((r << 11) | (g << 5) | b);
 }
+
 uint16_t create_rgb565(float f_r, float f_g, float f_b)
 {
   uint8_t r;
@@ -19,7 +20,13 @@ uint16_t create_rgb565(float f_r, float f_g, float f_b)
   
   return ((r << 11) | (g << 5) | b);
 }
-
+// 创建颜色
+// r:0-7,g:0-7,b:0-3
+uint8_t create_rgb332(uint8_t r, uint8_t g, uint8_t b)
+{
+  return ((r << 5) | (g << 2) | b);
+}
+//修改内存里面的颜色
 void modify_pixel_color(uint8_t *color_p, int16_t x, int16_t y, uint16_t new_color)
 {
   //printf("color_p address1: %p\n", (void *)color_p);
@@ -32,6 +39,8 @@ void modify_pixel_color(uint8_t *color_p, int16_t x, int16_t y, uint16_t new_col
   pixel_addr++;
   *pixel_addr = high_byte;
 }
+
+//修改内存里面的颜色
 void modify_pixel_color(uint8_t *color_p, uint32_t pixel_offset, uint16_t new_color)
 {
   //printf("color_p address1: %p\n", (void *)color_p);
@@ -40,16 +49,19 @@ void modify_pixel_color(uint8_t *color_p, uint32_t pixel_offset, uint16_t new_co
   uint8_t *pixel_addr = color_p + pixel_offset;     // 获取要修改像素颜色值的内存地址
   // 修改像素颜色值
   *pixel_addr = low_byte;
-  pixel_addr++;
+  pixel_addr+=1;
   *pixel_addr = high_byte;
 }
+
+//获取颜色的位置（索引）
 uint32_t getPixelIdx(int32_t x, int32_t y)
 {
   return (y * TFT_HOR_RES + x) * 2;
 }
 
+// 颜色阈值限制
 //val1附近的像素，val2误差
-uint8_t colorThresholdLimit(uint8_t val1, int8_t val2,uint8_t max) // 颜色阈值限制
+uint8_t colorThresholdLimit(uint8_t val1, int8_t val2,uint8_t max) 
 {
   int16_t val1_int = val1;
   int16_t val2_int = val2;
@@ -59,4 +71,9 @@ uint8_t colorThresholdLimit(uint8_t val1, int8_t val2,uint8_t max) // 颜色阈�
   else if (tmp < 0) return 0;
   else return tmp;
   return 0;
+}
+
+void saveSaveScreenCache(uint16_t x, uint16_t y, uint16_t piexl)
+{
+  uint16_t pos = y * TFT_VER_RES + x;
 }

@@ -13,10 +13,8 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
-#include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h>
 #include "lv_font.h"
+#include "../misc/lv_types.h"
 
 /*********************
  *      DEFINES
@@ -196,7 +194,7 @@ typedef struct {
 #if LV_USE_FONT_COMPRESSED
 typedef enum {
     RLE_STATE_SINGLE = 0,
-    RLE_STATE_REPEATE,
+    RLE_STATE_REPEATED,
     RLE_STATE_COUNTER,
 } lv_font_fmt_rle_state_t;
 
@@ -216,13 +214,11 @@ typedef struct {
 
 /**
  * Used as `get_glyph_bitmap` callback in lvgl's native font format if the font is uncompressed.
- * @param g_dsc         the glyph descriptor including which font to use etc.
- * @param letter        a UNICODE character code
+ * @param g_dsc         the glyph descriptor including which font to use, which supply the glyph_index and format.
  * @param draw_buf      a draw buffer that can be used to store the bitmap of the glyph, it's OK not to use it.
  * @return pointer to an A8 bitmap (not necessarily bitmap_out) or NULL if `unicode_letter` not found
  */
-const void * lv_font_get_bitmap_fmt_txt(lv_font_glyph_dsc_t * g_dsc, uint32_t unicode_letter,
-                                        lv_draw_buf_t * draw_buf);
+const void * lv_font_get_bitmap_fmt_txt(lv_font_glyph_dsc_t * g_dsc, lv_draw_buf_t * draw_buf);
 
 /**
  * Used as `get_glyph_dsc` callback in lvgl's native font format if the font is uncompressed.

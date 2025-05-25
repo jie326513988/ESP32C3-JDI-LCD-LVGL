@@ -82,6 +82,7 @@ typedef struct {
     uint32_t major_tick_every   : 15;
     uint32_t label_enabled      : 1;
     uint32_t post_draw          : 1;
+    uint32_t draw_ticks_on_top  : 1;
     /* Round scale */
     uint32_t angle_range;
     int32_t rotation;
@@ -165,7 +166,9 @@ void lv_scale_set_rotation(lv_obj_t * obj, int32_t rotation);
 /**
  * Point the needle to the corresponding value through the line
  * @param obj              pointer to a scale object
- * @param needle_line      needle_line of the scale
+ * @param needle_line      needle_line of the scale. The line points will be allocated and
+ *                         managed by the scale unless the line point array was previously set
+ *                         using `lv_line_set_points_mutable`.
  * @param needle_length    length of the needle
  *                         needle_length>0 needle_length=needle_length;
  *                         needle_length<0 needle_length=radius-|needle_length|;
@@ -198,6 +201,13 @@ void lv_scale_set_text_src(lv_obj_t * obj, const char * txt_src[]);
 void lv_scale_set_post_draw(lv_obj_t * obj, bool en);
 
 /**
+ * Draw the scale ticks on top of all parts
+ * @param obj       pointer to a scale object
+ * @param en        true: enable draw ticks on top of all parts
+ */
+void lv_scale_set_draw_ticks_on_top(lv_obj_t * obj, bool en);
+
+/**
  * Add a section to the given scale
  * @param obj       pointer to a scale object
  * @return          pointer to the new section
@@ -218,7 +228,7 @@ void lv_scale_section_set_range(lv_scale_section_t * section, int32_t minor_rang
  * @param part      the part for the section, e.g. LV_PART_INDICATOR
  * @param section_part_style Pointer to the section part style
  */
-void lv_scale_section_set_style(lv_scale_section_t * section, uint32_t part, lv_style_t * section_part_style);
+void lv_scale_section_set_style(lv_scale_section_t * section, lv_part_t part, lv_style_t * section_part_style);
 
 /*=====================
  * Getter functions

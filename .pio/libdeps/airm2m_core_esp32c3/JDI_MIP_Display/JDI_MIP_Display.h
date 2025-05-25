@@ -20,7 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 #ifndef JDI_MIP_Display_h
 #define JDI_MIP_Display_h
 
@@ -29,8 +28,11 @@
 #include <Adafruit_GFX.h>
 #include <Display_cfg.h>
 
+#if defined(ESP32)
+#include "driver/spi_master.h"
+#endif
 
-//#define DIFF_LINE_UPDATE   // 差异行更新
+// #define DIFF_LINE_UPDATE   // 差异行更新
 #define HALF_WIDTH (DISPLAY_WIDTH / 2)
 
 #define COLOR_BLACK 0x00
@@ -54,22 +56,30 @@ class JDI_MIP_Display : public Adafruit_GFX
 {
 public:
         JDI_MIP_Display();
-        //设置引脚、频率、是否开启DMA传输
-        void begin(int sck = -1, int miso = -1, int mosi = -1, int ss = -1, int fre = -1, bool dmaEN = 0);
+        // 设置引脚、频率、是否开启DMA传输
+        void begin(int sck = -1, int miso = -1, int mosi = -1, int ss = -1,
+                   int fre = -1, bool dmaEN = 0, bool end_cb = 0);
         void refresh();
         void displayOn();
         void displayOff();
         void clearScreen();
+        void noUpdate();
         void frontlightOn();
         void frontlightOff();
         void setBackgroundColor(uint16_t color);
         void drawBufferedPixel(int16_t x, int16_t y, uint16_t color);
+
         void pushPixelsDMA(uint8_t *image, uint32_t len);
+        void deInitDMA(void);
+        void registerDMACallback(void (*callback)(void));       // 注册DMA回调函数
+        static void (*dma_callback)(void);                      // 静态DMA完成回调函数指针
+        static void spi_dma_callback(spi_transaction_t *trans); // 静态SPI DMA回调函数
+
 private:
-        uint8_t _scs;         // 芯片选择信号 Chip selection signal
-        uint8_t _disp;        // 显示ON/OFF开关信号 Display ON/OFF switch signal
-        uint8_t _frontlight;  // 前置灯 Front lights
-        uint16_t _background; // 背景 background
+        uint8_t _scs;                     // 芯片选择信号 Chip selection signal
+        uint8_t _disp;                    // 显示ON/OFF开关信号 Display ON/OFF switch signal
+        uint8_t _frontlight;              // 前置灯 Front lights
+        uint16_t _background;             // 背景 background
 
         char _backBuffer[(DISPLAY_WIDTH / 2) * DISPLAY_HEIGHT];
 #ifdef DIFF_LINE_UPDATE
@@ -86,7 +96,7 @@ private:
         bool dmaBusy(void);       // 如果DMA仍在进行中，则返回true If DMA is still in progress, return true
         void dmaWait(void);       // 等待DMA完成 Waiting for DMA completion
         void _pushPixelsDMA(uint8_t *image, uint32_t len);
-        bool initDMA(int sck, int miso, int mosi, int ss, int fre);
-        void deInitDMA(void);
+        bool initDMA(int sck, int miso, int mosi, int ss, int fre, bool end_cb = 0);
+        void _deInitDMA(void);
 };
 #endif

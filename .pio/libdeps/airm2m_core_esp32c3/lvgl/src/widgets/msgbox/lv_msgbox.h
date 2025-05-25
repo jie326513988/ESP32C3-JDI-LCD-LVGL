@@ -129,14 +129,14 @@ lv_obj_t * lv_msgbox_get_content(lv_obj_t * obj);
 lv_obj_t * lv_msgbox_get_title(lv_obj_t * obj);
 
 /**
- * Close a message box
- * @param obj           pointer to a message box
+ * 关闭消息框
+ * @param obj  指向消息框的指针
  */
 void lv_msgbox_close(lv_obj_t * mbox);
 
 /**
- * Close a message box in the next call of the message box
- * @param obj           pointer to a message box
+ *在消息框的下一次呼叫中关闭消息框
+ *@param obj指向消息框的指针
  */
 void lv_msgbox_close_async(lv_obj_t * mbox);
 

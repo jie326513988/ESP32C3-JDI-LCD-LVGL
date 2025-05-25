@@ -17,7 +17,7 @@ extern "C" {
 
 #if LV_USE_LABEL != 0
 
-#include <stdarg.h>
+#include "../../misc/lv_types.h"
 #include "../../core/lv_obj.h"
 #include "../../font/lv_font.h"
 #include "../../font/lv_symbol_def.h"
@@ -45,12 +45,13 @@ LV_EXPORT_CONST_INT(LV_LABEL_TEXT_SELECTION_OFF);
  **********************/
 
 /** Long mode behaviors. Used in 'lv_label_ext_t'*/
-enum _lv_label_long_mode_t {
-    LV_LABEL_LONG_WRAP,             /**< 保持对象宽度，换行比对象宽度长，并扩展对象高度*/
-    LV_LABEL_LONG_DOT,              /**< 如果文本太长，保持大小并在末尾写点*/
-    LV_LABEL_LONG_SCROLL,           /**< 保持大小并前后滚动文本*/
-    LV_LABEL_LONG_SCROLL_CIRCULAR,  /**< 保持大小并循环滚动文本*/
-    LV_LABEL_LONG_CLIP,             /**< 保持大小并将文本从中裁剪出来*/
+enum _lv_label_long_mode_t
+{
+    LV_LABEL_LONG_WRAP,            /**<保持对象宽度,换行比对象宽度长并扩展对象高度*/
+    LV_LABEL_LONG_DOT,             /**<如果文本太长,请保持大小并在末尾写点*/
+    LV_LABEL_LONG_SCROLL,          /**<保持大小并来回滚动文本*/
+    LV_LABEL_LONG_SCROLL_CIRCULAR, /**<保持大小并循环滚动文本*/
+    LV_LABEL_LONG_CLIP,            /**<保持大小并将文本剪裁掉*/
 };
 
 #ifdef DOXYGEN
@@ -93,7 +94,7 @@ LV_ATTRIBUTE_EXTERN_DATA extern const lv_obj_class_t lv_label_class;
  **********************/
 
 /**
- * Create a label object
+ * 创建标签对象
  * @param parent    pointer to an object, it will be the parent of the new label.
  * @return          pointer to the created button
  */
@@ -104,14 +105,14 @@ lv_obj_t * lv_label_create(lv_obj_t * parent);
  *====================*/
 
 /**
- * Set a new text for a label. Memory will be allocated to store the text by the label.
+ * 为标签设置新文本。将按标签分配内存来存储文本。
  * @param obj           pointer to a label object
  * @param text          '\0' terminated character string. NULL to refresh with the current text.
  */
 void lv_label_set_text(lv_obj_t * obj, const char * text);
 
 /**
- * Set a new formatted text for a label. Memory will be allocated to store the text by the label.
+ * 为标签设置新的格式化文本。将按标签分配内存来存储文本。
  * @param obj           pointer to a label object
  * @param fmt           `printf`-like format
  * @example lv_label_set_text_fmt(label1, "%d user", user_num);
@@ -119,15 +120,14 @@ void lv_label_set_text(lv_obj_t * obj, const char * text);
 void lv_label_set_text_fmt(lv_obj_t * obj, const char * fmt, ...) LV_FORMAT_ATTRIBUTE(2, 3);
 
 /**
- * Set a static text. It will not be saved by the label so the 'text' variable
- * has to be 'alive' while the label exists.
+ * 设置静态文本。它不会被标签保存，因此“text”变量必须在标签存在时处于“活动”状态。
  * @param obj           pointer to a label object
  * @param text          pointer to a text. NULL to refresh with the current text.
  */
 void lv_label_set_text_static(lv_obj_t * obj, const char * text);
 
 /**
- * Set the behavior of the label with text longer than the object size
+ * 使用长于对象大小的文本设置标签的行为
  * @param obj           pointer to a label object
  * @param long_mode     the new mode from 'lv_label_long_mode' enum.
  *                      In LV_LONG_WRAP/DOT/SCROLL/SCROLL_CIRC the size of the label should be set AFTER this function
@@ -135,14 +135,14 @@ void lv_label_set_text_static(lv_obj_t * obj, const char * text);
 void lv_label_set_long_mode(lv_obj_t * obj, lv_label_long_mode_t long_mode);
 
 /**
- * Set where text selection should start
+ * 设置文本选择的开始位置
  * @param obj       pointer to a label object
  * @param index     character index from where selection should start. `LV_LABEL_TEXT_SELECTION_OFF` for no selection
  */
 void lv_label_set_text_selection_start(lv_obj_t * obj, uint32_t index);
 
 /**
- * Set where text selection should end
+ * 设置文本选择的结束位置
  * @param obj       pointer to a label object
  * @param index     character index where selection should end. `LV_LABEL_TEXT_SELECTION_OFF` for no selection
  */
@@ -153,21 +153,21 @@ void lv_label_set_text_selection_end(lv_obj_t * obj, uint32_t index);
  *====================*/
 
 /**
- * Get the text of a label
+ * 获取标签的文本
  * @param obj       pointer to a label object
  * @return          the text of the label
  */
 char * lv_label_get_text(const lv_obj_t * obj);
 
 /**
- * Get the long mode of a label
+ * 获取标签的长模式
  * @param obj       pointer to a label object
  * @return          the current long mode
  */
 lv_label_long_mode_t lv_label_get_long_mode(const lv_obj_t * obj);
 
 /**
- * Get the relative x and y coordinates of a letter
+ * 获取字母的相对x和y坐标
  * @param obj       pointer to a label object
  * @param char_id   index of the character [0 ... text length - 1].
  *                  Expressed in character index, not byte index (different in UTF-8)
@@ -176,7 +176,7 @@ lv_label_long_mode_t lv_label_get_long_mode(const lv_obj_t * obj);
 void lv_label_get_letter_pos(const lv_obj_t * obj, uint32_t char_id, lv_point_t * pos);
 
 /**
- * Get the index of letter on a relative point of a label.
+ * 获取标签相对点上的字母索引。
  * @param obj       pointer to label object
  * @param pos_in    pointer to point with coordinates on a the label
  * @param bidi      whether to use bidi processed
@@ -186,7 +186,7 @@ void lv_label_get_letter_pos(const lv_obj_t * obj, uint32_t char_id, lv_point_t 
 uint32_t lv_label_get_letter_on(const lv_obj_t * obj, lv_point_t * pos_in, bool bidi);
 
 /**
- * Check if a character is drawn under a point.
+ * 检查字符是否绘制在点下。
  * @param obj       pointer to a label object
  * @param pos       Point to check for character under
  * @return          whether a character is drawn under the point
@@ -194,14 +194,14 @@ uint32_t lv_label_get_letter_on(const lv_obj_t * obj, lv_point_t * pos_in, bool 
 bool lv_label_is_char_under_pos(const lv_obj_t * obj, lv_point_t * pos);
 
 /**
- * @brief Get the selection start index.
- * @param obj       pointer to a label object.
- * @return          selection start index. `LV_LABEL_TEXT_SELECTION_OFF` if nothing is selected.
+ * @brief 获取选择开始索引。
+ * @param obj       指向标签对象的指针。
+ * @return          选择开始索引`如果未选择任何内容，则LV_LABEL_TEXT_SELECTION_OFF。
  */
 uint32_t lv_label_get_text_selection_start(const lv_obj_t * obj);
 
 /**
- * @brief Get the selection end index.
+ * @brief 获取选择结束索引。
  * @param obj       pointer to a label object.
  * @return          selection end index. `LV_LABEL_TXT_SEL_OFF` if nothing is selected.
  */
@@ -212,20 +212,20 @@ uint32_t lv_label_get_text_selection_end(const lv_obj_t * obj);
  *====================*/
 
 /**
- * Insert a text to a label. The label text can not be static.
- * @param obj       pointer to a label object
- * @param pos       character index to insert. Expressed in character index and not byte index.
- *                  0: before first char. LV_LABEL_POS_LAST: after last char.
- * @param txt       pointer to the text to insert
+ * 在标签中插入文本。标签文本不能是静态的。
+ * @param obj       指向标签对象的指针
+ * @param pos       要插入的字符索引。用字符索引而不是字节索引表示。
+                    0：在第一个字符之前。LV_LABEL_POS_LAST：在最后一个字符之后。
+ * @param txt       指向要插入的文本的指针
  */
 void lv_label_ins_text(lv_obj_t * obj, uint32_t pos, const char * txt);
 
 /**
- * Delete characters from a label. The label text can not be static.
+ * 从标签中删除字符。标签文本不能是静态的。
  * @param obj       pointer to a label object
- * @param pos       character index from where to cut. Expressed in character index and not byte index.
- *                  0: start in from of the first character
- * @param cnt       number of characters to cut
+ * @param pos       字符索引从哪里剪切。用字符索引而不是字节索引表示。
+ *                  0：从第一个字符前面开始
+ * @param cnt       要剪切的字符数
  */
 void lv_label_cut_text(lv_obj_t * obj, uint32_t pos, uint32_t cnt);
 

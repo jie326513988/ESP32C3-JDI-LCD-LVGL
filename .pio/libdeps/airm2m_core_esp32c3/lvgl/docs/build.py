@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # ****************************************************************************
-# IMPOTRANT: If you are getting a lexer error for an example you need to check
+# IMPORTANT: If you are getting a lexer error for an example you need to check
 #            for extra lines at the end of the file. Only a single empty line
 #            is allowed!!! Ask me how long it took me to figure this out
 # ****************************************************************************
@@ -18,7 +18,7 @@ import config_builder
 import add_translation
 
 # due to the modifications that take place to the documentation files
-# when the documentaation builds it is better to copy the source files to a
+# when the documentation builds it is better to copy the source files to a
 # temporary folder and modify the copies. Not setting it up this way makes it
 # a real headache when making alterations that need to be committed as the
 # alterations trigger the files as changed.
@@ -70,10 +70,11 @@ def cmd(s):
     print("")
     print(s)
     print("-------------------------------------")
-    r = os.system(s)
-    if r != 0:
+
+    result = os.system(s)
+    if result != 0:
         print("Exit build due to previous error")
-        exit(-1)
+        sys.exit(result)
 
 
 # Get the current branch name
@@ -140,7 +141,7 @@ print("Add translation")
 add_translation.exec(temp_directory)
 
 print("Running doxygen")
-cmd('cd "{0}" && doxygen Doxyfile'.format(temp_directory))
+cmd('cd "{temp_directory}" && doxygen Doxyfile'.format(temp_directory=temp_directory))
 
 print('Reading Doxygen output')
 
@@ -207,27 +208,7 @@ else:
 
 
 def get_version():
-    path = os.path.join(project_path, 'lvgl.h')
-    with open(path, 'rb') as f:
-        d = f.read().decode('utf-8')
-
-    d = d.split('#define LVGL_VERSION_MAJOR', 1)[-1]
-    major, d = d.split('\n', 1)
-    d = d.split('#define LVGL_VERSION_MINOR', 1)[-1]
-    minor, d = d.split('\n', 1)
-    # d = d.split('#define LVGL_VERSION_PATCH', 1)[-1]
-    # patch, d = d.split('\n', 1)
-
-    ver = '{0}.{1}'.format(major.strip(), minor.strip())
-
-    # ver = '{0}.{1}.{2}'.format(major.strip(), minor.strip(), patch.strip())
-
-    # if '#define LVGL_VERSION_INFO' in d:
-    #     d = d.split('#define LVGL_VERSION_INFO', 1)[-1]
-    #     info, d = d.split('\n', 1)
-    #     info = info.strip().replace('"', '')
-    #     ver += '-' + info
-
+    _, ver = subprocess.getstatusoutput("../scripts/find_version.sh")
     return ver
 
 cmd('sphinx-build -b html "{src}" "{dst}" -D version="{version}" -E -j {cpu}'.format(

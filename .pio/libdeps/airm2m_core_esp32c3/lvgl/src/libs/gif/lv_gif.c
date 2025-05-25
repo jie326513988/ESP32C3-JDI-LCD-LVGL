@@ -49,6 +49,7 @@ const lv_obj_class_t lv_gif_class = {
 
 lv_obj_t * lv_gif_create(lv_obj_t * parent)
 {
+
     LV_LOG_INFO("begin");
     lv_obj_t * obj = lv_obj_class_create_obj(MY_CLASS, parent);
     lv_obj_class_init_obj(obj);
@@ -59,7 +60,7 @@ void lv_gif_set_src(lv_obj_t * obj, const void * src)
 {
     lv_gif_t * gifobj = (lv_gif_t *) obj;
 
-    /*关闭以前的gif（如果有）*/
+    /*Close previous gif if any*/
     if(gifobj->gif) {
         lv_image_cache_drop(lv_image_get_src(obj));
 
@@ -76,7 +77,7 @@ void lv_gif_set_src(lv_obj_t * obj, const void * src)
         gifobj->gif = gd_open_gif_file(src);
     }
     if(gifobj->gif == NULL) {
-        LV_LOG_WARN("无法加载源");
+        LV_LOG_WARN("Couldn't load the source");
         return;
     }
 
@@ -100,7 +101,7 @@ void lv_gif_restart(lv_obj_t * obj)
     lv_gif_t * gifobj = (lv_gif_t *) obj;
 
     if(gifobj->gif == NULL) {
-        LV_LOG_WARN("Gif资源未正确加载");
+        LV_LOG_WARN("Gif resource not loaded correctly");
         return;
     }
 
@@ -154,7 +155,6 @@ static void lv_gif_destructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
     lv_timer_delete(gifobj->timer);
 }
 
-//下一帧任务回调
 static void next_frame_task_cb(lv_timer_t * t)
 {
     lv_obj_t * obj = t->user_data;
@@ -164,20 +164,18 @@ static void next_frame_task_cb(lv_timer_t * t)
 
     gifobj->last_call = lv_tick_get();
 
-    int has_next = gd_get_frame(gifobj->gif); //获取帧
-    if(has_next == 0)
-     {
-        /*这是最后一次重复*/
+    int has_next = gd_get_frame(gifobj->gif);
+    if(has_next == 0) {
+        /*It was the last repeat*/
         lv_result_t res = lv_obj_send_event(obj, LV_EVENT_READY, NULL);
         lv_timer_pause(t);
-        LV_LOG_INFO("lv_timer_pause");
         if(res != LV_FS_RES_OK) return;
     }
 
-    gd_render_frame(gifobj->gif, (uint8_t *)gifobj->imgdsc.data); // gd渲染帧
+    gd_render_frame(gifobj->gif, (uint8_t *)gifobj->imgdsc.data);
 
-    lv_image_cache_drop(lv_image_get_src(obj)); //lv映像缓存丢弃
-    lv_obj_invalidate(obj); //lv对象无效
+    lv_image_cache_drop(lv_image_get_src(obj));
+    lv_obj_invalidate(obj);
 }
 
 #endif /*LV_USE_GIF*/

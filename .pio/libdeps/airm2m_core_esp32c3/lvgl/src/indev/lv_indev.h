@@ -28,11 +28,11 @@ extern "C" {
 
 /** Possible input device types*/
 typedef enum {
-    LV_INDEV_TYPE_NONE,    /**< Uninitialized state*/
-    LV_INDEV_TYPE_POINTER, /**< Touch pad, mouse, external button*/
-    LV_INDEV_TYPE_KEYPAD,  /**< Keypad or keyboard*/
-    LV_INDEV_TYPE_BUTTON,  /**< External (hardware button) which is assigned to a specific point of the screen*/
-    LV_INDEV_TYPE_ENCODER, /**< Encoder with only Left, Right turn and a Button*/
+    LV_INDEV_TYPE_NONE,    /**< 未初始化状态*/
+    LV_INDEV_TYPE_POINTER, /**< 触摸板、鼠标、外部按钮*/
+    LV_INDEV_TYPE_KEYPAD,  /**< 小键盘或键盘*/
+    LV_INDEV_TYPE_BUTTON,  /**< 分配给屏幕特定点的外部（硬件按钮）*/
+    LV_INDEV_TYPE_ENCODER, /**< 仅带左、右转向和按钮的编码器*/
 } lv_indev_type_t;
 
 /** States for input devices*/
@@ -47,15 +47,15 @@ typedef enum {
     LV_INDEV_MODE_EVENT,
 } lv_indev_mode_t;
 
-/** Data structure passed to an input driver to fill*/
+/**传递给输入驱动程序以填充的数据结构*/
 typedef struct {
-    lv_point_t point; /**< For LV_INDEV_TYPE_POINTER the currently pressed point*/
-    uint32_t key;     /**< For LV_INDEV_TYPE_KEYPAD the currently pressed key*/
-    uint32_t btn_id;  /**< For LV_INDEV_TYPE_BUTTON the currently pressed button*/
-    int16_t enc_diff; /**< For LV_INDEV_TYPE_ENCODER number of steps since the previous read*/
+    lv_point_t point; /**<对于LV_INDEV_TYPE_POINTER，当前按下的点*/
+    uint32_t key;     /**< 对于LV_INDEV_TYPE_KEYPAD，当前按下的键*/
+    uint32_t btn_id;  /**< 对于LV_INDEV_TYPE_BUTTON，当前按下的按钮*/
+    int16_t enc_diff; /**< 对于LV_INDEV_TYPE_ENCODER，自上次读取以来的步数*/
 
-    lv_indev_state_t state; /**< LV_INDEV_STATE_REL or LV_INDEV_STATE_PR*/
-    bool continue_reading;  /**< If set to true, the read callback is invoked again, unless the device is in event-driven mode*/
+    lv_indev_state_t state; /**< LV_INDEV_STATE_RELEASED or LV_INDEV_STATE_PRESSED*/
+    bool continue_reading;  /**< 如果设置为true，则会再次调用读取回调，除非设备处于事件驱动模式*/
 } lv_indev_data_t;
 
 typedef void (*lv_indev_read_cb_t)(lv_indev_t * indev, lv_indev_data_t * data);
@@ -160,21 +160,21 @@ lv_indev_type_t lv_indev_get_type(const lv_indev_t * indev);
 lv_indev_read_cb_t lv_indev_get_read_cb(lv_indev_t * indev);
 
 /**
- * Get the indev state
+ * 获取 indev 状态
  * @param indev pointer to an input device
- * @return Indev state or LV_INDEV_STATE_RELEASED if indev is NULL
+ * @return Indev 状态，如果 indev 为 NULL，则为 LV_INDEV_STATE_RELEASED
  */
 lv_indev_state_t lv_indev_get_state(const lv_indev_t * indev);
 
 /**
- * Get the indev assigned group
- * @param indev pointer to an input device
- * @return Pointer to indev assigned group or NULL if indev is NULL
+ * 获取 indev 分配的组
+ * @param indev 指向输入设备的指针
+ * @return 指向 indev 分配组的指针，如果 indev 为 NULL，则为 NULL
  */
 lv_group_t * lv_indev_get_group(const lv_indev_t * indev);
 
 /**
- * Get a pointer to the assigned display of the indev
+ * 获取指向 indev 指定显示的指针
  * @param indev pointer to an input device
  * @return pointer to the assigned display or NULL if indev is NULL
  */
@@ -215,7 +215,7 @@ void lv_indev_reset_long_press(lv_indev_t * indev);
 void lv_indev_set_cursor(lv_indev_t * indev, lv_obj_t * cur_obj);
 
 /**
- * Set a destination group for a keypad input device (for LV_INDEV_TYPE_KEYPAD)
+ * 为键盘输入设备设置目标组（用于LV_INDEV_TYPE_keypad）
  * @param indev pointer to an input device
  * @param group pointer to a group
  */
@@ -296,9 +296,9 @@ lv_obj_t * lv_indev_get_active_obj(void);
 lv_timer_t * lv_indev_get_read_timer(lv_indev_t * indev);
 
 /**
-* Set the input device's event model: event-driven mode or timer mode.
+* 设置输入设备的事件模型：事件驱动模式或计时器模式。
 * @param indev pointer to an input device
-* @param mode the mode of input device
+* @param mode 输入设备的模式
 */
 void lv_indev_set_mode(lv_indev_t * indev, lv_indev_mode_t mode);
 

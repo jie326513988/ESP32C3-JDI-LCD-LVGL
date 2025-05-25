@@ -24,6 +24,8 @@
 #include "draw/lv_draw.h"
 #include "misc/lv_async.h"
 #include "misc/lv_fs.h"
+#include "osal/lv_os_private.h"
+
 #if LV_USE_DRAW_VGLITE
     #include "draw/nxp/vglite/lv_draw_vglite.h"
 #endif
@@ -96,6 +98,11 @@ static inline void lv_global_init(lv_global_t * global)
     global->event_last_register_id = _LV_EVENT_LAST;
     lv_rand_set_seed(0x1234ABCD);
 
+#ifdef LV_LOG_PRINT_CB
+    void LV_LOG_PRINT_CB(lv_log_level_t, const char * txt);
+    global->custom_log_print_cb = LV_LOG_PRINT_CB;
+#endif
+
 #if defined(LV_DRAW_SW_SHADOW_CACHE_SIZE) && LV_DRAW_SW_SHADOW_CACHE_SIZE > 0
     global->sw_shadow_cache.cache_size = -1;
     global->sw_shadow_cache.cache_r = -1;
@@ -155,6 +162,8 @@ void lv_init(void)
     lv_profiler_builtin_init(&profiler_config);
 #endif
 
+    lv_os_init();
+
     _lv_timer_core_init();
 
     _lv_fs_init();
@@ -200,7 +209,7 @@ void lv_init(void)
     _lv_sysmon_builtin_init();
 #endif
 
-    _lv_image_decoder_init();
+    _lv_image_decoder_init(LV_CACHE_DEF_SIZE, LV_IMAGE_HEADER_CACHE_DEF_CNT);
     lv_bin_decoder_init();  /*LVGL built-in binary image decoder*/
 
 #if LV_USE_DRAW_VG_LITE
@@ -266,6 +275,14 @@ void lv_init(void)
 
 #if LV_USE_FS_LITTLEFS
     lv_fs_littlefs_init();
+#endif
+
+#if LV_USE_FS_ARDUINO_ESP_LITTLEFS
+    lv_fs_arduino_esp_littlefs_init();
+#endif
+
+#if LV_USE_FS_ARDUINO_SD
+    lv_fs_arduino_sd_init();
 #endif
 
 #if LV_USE_LODEPNG
@@ -394,7 +411,7 @@ void lv_deinit(void)
     lv_profiler_builtin_uninit();
 #endif
 
-#if LV_USE_OBJ_ID_BUILTIN
+#if LV_USE_OBJ_ID && LV_USE_OBJ_ID_BUILTIN
     lv_objid_builtin_destroy();
 #endif
 

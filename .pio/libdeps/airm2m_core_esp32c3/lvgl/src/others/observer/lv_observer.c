@@ -34,10 +34,7 @@ static lv_observer_t * bind_to_bitfield(lv_subject_t * subject, lv_obj_t * obj, 
                                         int32_t ref_value, bool inv);
 static void obj_flag_observer_cb(lv_observer_t * observer, lv_subject_t * subject);
 static void obj_state_observer_cb(lv_observer_t * observer, lv_subject_t * subject);
-
-#if LV_USE_BUTTON
-    static void btn_value_changed_event_cb(lv_event_t * e);
-#endif
+static void obj_value_changed_event_cb(lv_event_t * e);
 
 #if LV_USE_LABEL
     static void label_text_observer_cb(lv_observer_t * observer, lv_subject_t * subject);
@@ -119,8 +116,8 @@ int32_t lv_subject_get_previous_int(lv_subject_t * subject)
 void lv_subject_init_string(lv_subject_t * subject, char * buf, char * prev_buf, size_t size, const char * value)
 {
     lv_memzero(subject, sizeof(lv_subject_t));
-    lv_strncpy(buf, value, size);
-    if(prev_buf) lv_strncpy(prev_buf, value, size);
+    lv_strlcpy(buf, value, size);
+    if(prev_buf) lv_strlcpy(prev_buf, value, size);
 
     subject->type = LV_SUBJECT_TYPE_STRING;
     subject->size = size;
@@ -139,10 +136,10 @@ void lv_subject_copy_string(lv_subject_t * subject, const char * buf)
 
     if(subject->size < 1) return;
     if(subject->prev_value.pointer) {
-        lv_strncpy((char *)subject->prev_value.pointer, subject->value.pointer, subject->size - 1);
+        lv_strlcpy((char *)subject->prev_value.pointer, subject->value.pointer, subject->size);
     }
 
-    lv_strncpy((char *)subject->value.pointer, buf, subject->size - 1);
+    lv_strlcpy((char *)subject->value.pointer, buf, subject->size);
 
     lv_subject_notify(subject);
 
@@ -265,6 +262,24 @@ void lv_subject_init_group(lv_subject_t * subject, lv_subject_t * list[], uint32
     }
 }
 
+void lv_subject_deinit(lv_subject_t * subject)
+{
+    lv_observer_t * observer = _lv_ll_get_head(&subject->subs_ll);
+    while(observer) {
+        lv_observer_t * observer_next = _lv_ll_get_next(&subject->subs_ll, observer);
+
+        if(observer->for_obj) {
+            lv_obj_remove_event_cb(observer->target, unsubscribe_on_delete_cb);
+            lv_obj_remove_event_cb_with_user_data(observer->target, NULL, subject);
+        }
+
+        lv_observer_remove(observer);
+        observer = observer_next;
+    }
+
+    _lv_ll_clear(&subject->subs_ll);
+}
+
 lv_subject_t * lv_subject_get_group_element(lv_subject_t * subject, int32_t index)
 {
     if(subject->type != LV_SUBJECT_TYPE_GROUP) {
@@ -280,6 +295,9 @@ lv_subject_t * lv_subject_get_group_element(lv_subject_t * subject, int32_t inde
 lv_observer_t * lv_subject_add_observer(lv_subject_t * subject, lv_observer_cb_t cb, void * user_data)
 {
     lv_observer_t * observer = lv_subject_add_observer_obj(subject, cb, NULL, user_data);
+    if(observer == NULL) return NULL;
+
+    observer->for_obj = 0;
     return observer;
 }
 
@@ -301,6 +319,7 @@ lv_observer_t * lv_subject_add_observer_obj(lv_subject_t * subject, lv_observer_
     observer->cb = cb;
     observer->user_data = user_data;
     observer->target = obj;
+    observer->for_obj = 1;
     /* subscribe to delete event of the object */
     if(obj != NULL) {
         lv_obj_add_event_cb(obj, unsubscribe_on_delete_cb, LV_EVENT_DELETE, observer);
@@ -360,10 +379,7 @@ void lv_subject_remove_all_obj(lv_subject_t * subject, lv_obj_t * obj)
     }
 
     while(lv_obj_remove_event_cb(obj, unsubscribe_on_delete_cb));
-
-#if LV_USE_BUTTON
-    while(lv_obj_remove_event_cb(obj, btn_value_changed_event_cb));
-#endif /*LV_USE_BUTTON*/
+    while(lv_obj_remove_event_cb(obj, obj_value_changed_event_cb));
 
 #if LV_USE_ARC
     while(lv_obj_remove_event_cb(obj, arc_value_changed_event_cb));
@@ -440,14 +456,12 @@ lv_observer_t * lv_obj_bind_state_if_not_eq(lv_obj_t * obj, lv_subject_t * subje
     return observable;
 }
 
-#if LV_USE_BUTTON
-lv_observer_t * lv_button_bind_checked(lv_obj_t * obj, lv_subject_t * subject)
+lv_observer_t * lv_obj_bind_checked(lv_obj_t * obj, lv_subject_t * subject)
 {
     lv_observer_t * observable = bind_to_bitfield(subject, obj, obj_state_observer_cb, LV_STATE_CHECKED, 1, false);
-    lv_obj_add_event_cb(obj, btn_value_changed_event_cb, LV_EVENT_VALUE_CHANGED, subject);
+    lv_obj_add_event_cb(obj, obj_value_changed_event_cb, LV_EVENT_VALUE_CHANGED, subject);
     return observable;
 }
-#endif /*LV_USE_BUTTON*/
 
 #if LV_USE_LABEL
 lv_observer_t * lv_label_bind_text(lv_obj_t * obj, lv_subject_t * subject, const char * fmt)
@@ -606,17 +620,13 @@ static void obj_state_observer_cb(lv_observer_t * observer, lv_subject_t * subje
     }
 }
 
-#if LV_USE_BUTTON
-
-static void btn_value_changed_event_cb(lv_event_t * e)
+static void obj_value_changed_event_cb(lv_event_t * e)
 {
     lv_obj_t * obj = lv_event_get_current_target(e);
     lv_subject_t * subject = lv_event_get_user_data(e);
 
     lv_subject_set_int(subject, lv_obj_has_state(obj, LV_STATE_CHECKED));
 }
-
-#endif /*LV_USE_BUTTON*/
 
 #if LV_USE_LABEL
 

@@ -59,9 +59,15 @@ typedef struct _lv_draw_image_dsc_t {
     uint16_t tile               : 1;
     lv_draw_image_sup_t * sup;
 
-    /** Might be used to indicate the original size of the image if only a small portion is rendered now.
-     * Used when a part of a layer is rendered to show the total layer size*/
-    lv_area_t original_area;
+    /** Used to indicate the entire original, non-clipped area where the image is to be drawn.
+     * This is important for:
+     *  1. Layer rendering, where it might happen that only a smaller area of the layer is rendered.
+     *  2. Tiled images, where the target draw area is larger than the image to be tiled.
+     */
+    lv_area_t image_area;
+
+    int32_t clip_radius;
+
     const lv_image_dsc_t * bitmap_mask_src;
 } lv_draw_image_dsc_t;
 
@@ -100,14 +106,19 @@ lv_draw_image_dsc_t * lv_draw_task_get_image_dsc(lv_draw_task_t * task);
  * @param layer         pointer to a layer
  * @param dsc           pointer to an initialized draw descriptor
  * @param coords        the coordinates of the image
+ * @note                `coords` can be small than the real image area
+ *                      (if only a part of the image is rendered)
+ *                      or can be larger (in case of tiled images).   .
  */
 void lv_draw_image(lv_layer_t * layer, const lv_draw_image_dsc_t * dsc, const lv_area_t * coords);
 
 /**
- * Create a draw task to blend a layer to an other layer
+ * Create a draw task to blend a layer to another layer
  * @param layer         pointer to a layer
  * @param dsc           pointer to an initialized draw descriptor
- * @param coords        the coordinates of the layer
+ * @param coords        the coordinates of the layer.
+ * @note                `coords` can be small than the total widget area from which the layer is created
+ *                      (if only a part of the widget was rendered to a layer)
  */
 void lv_draw_layer(lv_layer_t * layer, const lv_draw_image_dsc_t * dsc, const lv_area_t * coords);
 

@@ -15,8 +15,7 @@ extern "C" {
  *********************/
 #include "../lv_conf_internal.h"
 
-#include <stdint.h>
-#include <stdbool.h>
+#include "../misc/lv_types.h"
 
 /*********************
  *      DEFINES
@@ -50,13 +49,13 @@ typedef struct {
 LV_ATTRIBUTE_TICK_INC void lv_tick_inc(uint32_t tick_period);
 
 /**
- * 获取自启动以来经过的毫秒数
+ * Get the elapsed milliseconds since start up
  * @return          the elapsed milliseconds
  */
 uint32_t lv_tick_get(void);
 
 /**
- * 获取自上一个时间戳以来经过的毫秒数
+ * Get the elapsed milliseconds since a previous time stamp
  * @param prev_tick     a previous time stamp (return value of lv_tick_get() )
  * @return              the elapsed milliseconds since 'prev_tick'
  */
@@ -77,8 +76,8 @@ void lv_delay_ms(uint32_t ms);
 void lv_tick_set_cb(lv_tick_get_cb_t cb);
 
 /**
- * Set a custom callback for 'lv_dalay_ms'
- * @param cb        call this callback in 'lv_dalay_ms'
+ * Set a custom callback for 'lv_delay_ms'
+ * @param cb        call this callback in 'lv_delay_ms'
  */
 void lv_delay_set_cb(lv_delay_cb_t cb);
 

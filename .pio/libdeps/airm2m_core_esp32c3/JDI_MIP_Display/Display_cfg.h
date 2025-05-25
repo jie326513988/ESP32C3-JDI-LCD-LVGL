@@ -28,23 +28,12 @@
 //=================================================================
 
 //===============================
-// Wiring example Teensy 4.1
-#define PIN_SCS 10        // SPI芯片选择信号引脚
-#define PIN_DISP 3        // 显示器ON/OFF开关信号引脚
+//esp32c3自己画板
+#define PIN_SCS 7         // SPI芯片选择信号引脚
+#define PIN_DISP 6        // 显示器ON/OFF开关信号引脚
 #define PIN_FRONTLIGHT -1 // 前灯针脚。可选，具体取决于显示器型号
 
-//===============================
-// Wiring example Esp8266 Wemos D1 mini
-/*
-#define PIN_SCS         15         // D8 GPIO15 SPI Chip Select Signal pin
-#define PIN_DISP        4          // D2 GPIO4  Display ON/OFF Switching Signal pin
-#define PIN_FRONTLIGHT  5          // D1 GPIO5  Frontlight pin. Optional depending on the display model
-*/
-
-//===============================
-// Wiring example Esp32 NodeMCU
-/*
-#define PIN_SCS         5          // GPIO5     SPI Chip Select Signal pin
-#define PIN_DISP        21         // GPIO21    Display ON/OFF Switching Signal pin
-#define PIN_FRONTLIGHT  22         // GPIO22    Frontlight pin. Optional depending on the display model
-*/
+//esp32c3开发板
+/*#define PIN_SCS 10        // SPI芯片选择信号引脚
+#define PIN_DISP 3        // 显示器ON/OFF开关信号引脚
+#define PIN_FRONTLIGHT -1 // 前灯针脚。可选，具体取决于显示器型号*/

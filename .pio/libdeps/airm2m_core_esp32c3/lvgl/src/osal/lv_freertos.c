@@ -134,22 +134,22 @@ lv_result_t lv_mutex_lock(lv_mutex_t * pxMutex)
 
 lv_result_t lv_mutex_lock_isr(lv_mutex_t * pxMutex)
 {
-    /* 如果互斥对象未初始化，则执行初始化. */
+    /* If mutex in uninitialized, perform initialization. */
     prvCheckMutexInit(pxMutex);
 
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     BaseType_t xMutexTakeStatus = xSemaphoreTakeFromISR(pxMutex->xMutex, &xHigherPriorityTaskWoken);
     if(xMutexTakeStatus != pdTRUE) {
-        LV_LOG_ERROR("xSemaphoreTake 失败!");
+        LV_LOG_ERROR("xSemaphoreTake failed!");
         return LV_RESULT_INVALID;
     }
 
-    /* 如果xHigherPriorityTaskWoken现在设置为pdTRUE，则应执行上下文切换，
-    以确保中断直接返回到最高优先级的任务。
-    用于此目的的宏取决于所使用的端口，可以称为portEND_SWITCHING_ISR（）. */
-    //portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR();
+    /*如果xHigherPriorityTaskWoken现在设置为pdTRUE，
+    则应执行上下文切换，以确保中断直接返回到最高优先级的任务。
+    用于此目的的宏取决于所使用的端口，可以称为portEND_SWITCHING_ISR（）*/
+    // portYIELD_FROM_ISR(xHigherPriorityTaskWoken); //甘草
+    portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
     return LV_RESULT_OK;
 }
 

@@ -13,6 +13,7 @@
 #include "../stdlib/lv_string.h"
 #include "../themes/lv_theme.h"
 #include "../core/lv_global.h"
+#include "../others/sysmon/lv_sysmon.h"
 
 #if LV_USE_DRAW_SW
     #include "../draw/sw/lv_draw_sw.h"
@@ -139,6 +140,14 @@ lv_display_t * lv_display_create(int32_t hor_res, int32_t ver_res)
 
     lv_timer_ready(disp->refr_timer); /*Be sure the screen will be refreshed immediately on start up*/
 
+#if LV_USE_PERF_MONITOR
+    lv_sysmon_show_performance(disp);
+#endif
+
+#if LV_USE_MEM_MONITOR
+    lv_sysmon_show_memory(disp);
+#endif
+
     return disp;
 }
 
@@ -178,7 +187,7 @@ void lv_display_delete(lv_display_t * disp)
     disp->act_scr = NULL;
 
     while(disp->screen_cnt != 0) {
-        /*Delete the screenst*/
+        /*Delete the screens*/
         lv_obj_delete(disp->screens[0]);
     }
 
@@ -457,6 +466,8 @@ void lv_display_set_color_format(lv_display_t * disp, lv_color_format_t color_fo
 
     disp->color_format = color_format;
     disp->layer_head->color_format = color_format;
+    if(disp->buf_1) disp->buf_1->header.cf = color_format;
+    if(disp->buf_2) disp->buf_2->header.cf = color_format;
 
     lv_display_send_event(disp, LV_EVENT_COLOR_FORMAT_CHANGED, NULL);
 }
@@ -567,15 +578,15 @@ void lv_screen_load(struct _lv_obj_t * scr)
 void lv_screen_load_anim(lv_obj_t * new_scr, lv_screen_load_anim_t anim_type, uint32_t time, uint32_t delay,
                          bool auto_del)
 {
-    lv_display_t * d = lv_obj_get_display(new_scr);
-    lv_obj_t * act_scr = lv_screen_active();
+    lv_display_t *d = lv_obj_get_display(new_scr);
+    lv_obj_t *act_scr = d->act_scr;
 
-    if(act_scr == new_scr || d->scr_to_load == new_scr) {
+    if (act_scr == new_scr || d->scr_to_load == new_scr)
+    {
         return;
     }
-
-    /*If another screen load animation is in progress
-     *make target screen loaded immediately. */
+  
+    /*如果另一个屏幕加载动画正在进行中，请立即加载目标屏幕. */
     if(d->scr_to_load && act_scr != d->scr_to_load) {
         lv_anim_delete(d->scr_to_load, NULL);
         lv_obj_set_pos(d->scr_to_load, 0, 0);
@@ -584,32 +595,30 @@ void lv_screen_load_anim(lv_obj_t * new_scr, lv_screen_load_anim_t anim_type, ui
         if(d->del_prev) {
             lv_obj_delete(act_scr);
         }
-        act_scr = lv_screen_active(); /*Active screen changed.*/
+        act_scr = d->act_scr; /*活动屏幕已更改.*/
 
         scr_load_internal(d->scr_to_load);
     }
 
     d->scr_to_load = new_scr;
 
-    if(d->prev_scr && d->del_prev) {
-        lv_obj_delete(d->prev_scr);
-        d->prev_scr = NULL;
-    }
+    if(d->prev_scr && d->del_prev) lv_obj_delete(d->prev_scr);
+    d->prev_scr = NULL;
 
     d->draw_prev_over_act = is_out_anim(anim_type);
     d->del_prev = auto_del;
 
-    /*Be sure there is no other animation on the screens*/
+    /*确保屏幕上没有其他动画*/
     lv_anim_delete(new_scr, NULL);
     if(act_scr) lv_anim_delete(act_scr, NULL);
 
-    /*Be sure both screens are in a normal position*/
+    /*确保两个屏幕都处于正常位置*/
     lv_obj_set_pos(new_scr, 0, 0);
     if(act_scr) lv_obj_set_pos(act_scr, 0, 0);
     lv_obj_remove_local_style_prop(new_scr, LV_STYLE_OPA, 0);
     if(act_scr) lv_obj_remove_local_style_prop(act_scr, LV_STYLE_OPA, 0);
 
-    /*Shortcut for immediate load*/
+    /*立即加载的快捷方式*/
     if(time == 0 && delay == 0) {
         scr_load_internal(new_scr);
         if(auto_del && act_scr) lv_obj_delete(act_scr);
@@ -632,7 +641,7 @@ void lv_screen_load_anim(lv_obj_t * new_scr, lv_screen_load_anim_t anim_type, ui
 
     switch(anim_type) {
         case LV_SCR_LOAD_ANIM_NONE:
-            /*Create a dummy animation to apply the delay*/
+            /*创建虚拟动画以应用延迟*/
             lv_anim_set_exec_cb(&a_new, set_x_anim);
             lv_anim_set_values(&a_new, 0, 0);
             break;
@@ -764,7 +773,6 @@ uint32_t lv_display_remove_event_cb_with_user_data(lv_display_t * disp, lv_event
 
 lv_result_t lv_display_send_event(lv_display_t * disp, lv_event_code_t code, void * param)
 {
-
     lv_event_t e;
     lv_memzero(&e, sizeof(e));
     e.code = code;
@@ -924,6 +932,37 @@ lv_draw_buf_t * lv_display_get_buf_active(lv_display_t * disp)
     return disp->buf_act;
 }
 
+void lv_display_rotate_area(lv_display_t * disp, lv_area_t * area)
+{
+    lv_display_rotation_t rotation = lv_display_get_rotation(disp);
+
+    int32_t w = lv_area_get_width(area);
+    int32_t h = lv_area_get_height(area);
+
+    switch(rotation) {
+        case LV_DISPLAY_ROTATION_0:
+            return;
+        case LV_DISPLAY_ROTATION_90:
+            area->y2 = disp->ver_res - area->x1 - 1;
+            area->x1 = area->y1;
+            area->x2 = area->x1 + h - 1;
+            area->y1 = area->y2 - w + 1;
+            break;
+        case LV_DISPLAY_ROTATION_180:
+            area->y2 = disp->ver_res - area->y1 - 1;
+            area->y1 = area->y2 - h + 1;
+            area->x2 = disp->hor_res - area->x1 - 1;
+            area->x1 = area->x2 - w + 1;
+            break;
+        case LV_DISPLAY_ROTATION_270:
+            area->x1 = disp->hor_res - area->y2 - 1;
+            area->y2 = area->x2;
+            area->x2 = area->x1 + h - 1;
+            area->y1 = area->y2 - w + 1;
+            break;
+    }
+}
+
 /**********************
  *   STATIC FUNCTIONS
  **********************/
@@ -998,7 +1037,7 @@ static void scr_load_anim_start(lv_anim_t * a)
 {
     lv_display_t * d = lv_obj_get_display(a->var);
 
-    d->prev_scr = lv_screen_active();
+    d->prev_scr = d->act_scr;
     d->act_scr = a->var;
 
     lv_obj_send_event(d->act_scr, LV_EVENT_SCREEN_LOAD_START, NULL);

@@ -31,6 +31,8 @@ Rename this file to lodepng.cpp to use it for C++, or to lodepng.c to use it for
 #include "lodepng.h"
 #if LV_USE_LODEPNG
 
+#define image_cache_draw_buf_handlers &(LV_GLOBAL_DEFAULT()->image_cache_draw_buf_handlers)
+
 #ifdef LODEPNG_COMPILE_DISK
     #include <limits.h> /* LONG_MAX */
 #endif /* LODEPNG_COMPILE_DISK */
@@ -1936,7 +1938,7 @@ static unsigned deflateDynamic(LodePNGBitWriter * writer, Hash * hash,
     size_t datasize = dataend - datapos;
 
     /*
-    If we could call "bitlen_cl" the the code length code lengths ("clcl"), that is the bit lengths of codes to represent
+    If we could call "bitlen_cl" the code length code lengths ("clcl"), that is the bit lengths of codes to represent
     tree_cl in CLCL_ORDER, then due to the huffman compression of huffman tree representations ("two levels"), there are
     some analogies:
     bitlen_lld is to tree_cl what data is to tree_ll and tree_d.
@@ -5307,7 +5309,7 @@ static void decodeGeneric(unsigned char ** out, unsigned * w, unsigned * h,
     lodepng_free(idat);
 
     if(!state->error) {
-        lv_draw_buf_t * decoded = lv_draw_buf_create(*w, *h, LV_COLOR_FORMAT_ARGB8888, 4 * *w);
+        lv_draw_buf_t * decoded = lv_draw_buf_create_user(image_cache_draw_buf_handlers, *w, *h, LV_COLOR_FORMAT_ARGB8888, 4 * *w);
         if(decoded) {
             *out = (unsigned char*)decoded;
             outsize = decoded->data_size;
@@ -5348,7 +5350,7 @@ unsigned lodepng_decode(unsigned char ** out, unsigned * w, unsigned * h,
             return 56; /*unsupported color mode conversion*/
         }
 
-        lv_draw_buf_t * new_buf = lv_draw_buf_create(*w, *h, LV_COLOR_FORMAT_ARGB8888, 4 * *w);
+        lv_draw_buf_t * new_buf = lv_draw_buf_create_user(image_cache_draw_buf_handlers,*w, *h, LV_COLOR_FORMAT_ARGB8888, 4 * *w);
         if(new_buf == NULL) {
             state->error = 83; /*alloc fail*/
         }
@@ -5357,13 +5359,13 @@ unsigned lodepng_decode(unsigned char ** out, unsigned * w, unsigned * h,
                                             &state->info_raw, &state->info_png.color, *w, *h);
             
             if (state->error) {
-                lv_draw_buf_destroy(new_buf);
+                lv_draw_buf_destroy_user(image_cache_draw_buf_handlers,new_buf);
                 new_buf = NULL;
             }
         }
 
         *out = (unsigned char*)new_buf;
-        lv_draw_buf_destroy(old_buf);
+        lv_draw_buf_destroy_user(image_cache_draw_buf_handlers,old_buf);
     }
     return state->error;
 }

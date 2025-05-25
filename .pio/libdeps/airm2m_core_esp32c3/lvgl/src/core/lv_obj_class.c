@@ -66,17 +66,24 @@ lv_obj_t * lv_obj_class_create_obj(const lv_obj_class_t * class_p, lv_obj_t * pa
             disp->screen_cnt = 0;
         }
 
+        lv_obj_t ** screens = lv_realloc(disp->screens, sizeof(lv_obj_t *) * (disp->screen_cnt + 1));
+        LV_ASSERT_MALLOC(screens);
+        if(screens == NULL) {
+            lv_free(obj);
+            return NULL;
+        }
+
         disp->screen_cnt++;
-        disp->screens = lv_realloc(disp->screens, sizeof(lv_obj_t *) * disp->screen_cnt);
+        disp->screens = screens;
         disp->screens[disp->screen_cnt - 1] = obj;
 
-        /*Set coordinates to full screen size*/
+        /*将坐标设置为全屏大小*/
         obj->coords.x1 = 0;
         obj->coords.y1 = 0;
         obj->coords.x2 = lv_display_get_horizontal_resolution(NULL) - 1;
         obj->coords.y2 = lv_display_get_vertical_resolution(NULL) - 1;
     }
-    /*Create a normal object*/
+    /*创建普通对象*/
     else {
         LV_TRACE_OBJ_CREATE("creating normal object");
         LV_ASSERT_OBJ(parent, MY_CLASS);
@@ -113,12 +120,12 @@ void lv_obj_class_init_obj(lv_obj_t * obj)
 
     lv_obj_t * parent = lv_obj_get_parent(obj);
     if(parent) {
-        /*Call the ancestor's event handler to the parent to notify it about the new child.
-         *Also triggers layout update*/
+        /*将祖先的事件处理程序调用给父级，以通知它新的子级。
+         *还触发布局更新*/
         lv_obj_send_event(parent, LV_EVENT_CHILD_CHANGED, obj);
         lv_obj_send_event(parent, LV_EVENT_CHILD_CREATED, obj);
 
-        /*Invalidate the area if not screen created*/
+        /*如果未创建屏幕，则使该区域无效*/
         lv_obj_invalidate(obj);
     }
 }

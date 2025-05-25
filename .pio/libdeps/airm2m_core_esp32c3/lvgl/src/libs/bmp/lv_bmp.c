@@ -15,6 +15,10 @@
  *      DEFINES
  *********************/
 
+#define DECODER_NAME    "BMP"
+
+#define image_cache_draw_buf_handlers &(LV_GLOBAL_DEFAULT()->image_cache_draw_buf_handlers)
+
 /**********************
  *      TYPEDEFS
  **********************/
@@ -57,6 +61,8 @@ void lv_bmp_init(void)
     lv_image_decoder_set_open_cb(dec, decoder_open);
     lv_image_decoder_set_get_area_cb(dec, decoder_get_area);
     lv_image_decoder_set_close_cb(dec, decoder_close);
+
+    dec->name = DECODER_NAME;
 }
 
 void lv_bmp_deinit(void)
@@ -196,7 +202,20 @@ static lv_result_t decoder_get_area(lv_image_decoder_t * decoder, lv_image_decod
     if(decoded_area->y1 == LV_COORD_MIN) {
         *decoded_area = *full_area;
         decoded_area->y2 = decoded_area->y1;
-        if(decoded == NULL) decoded = lv_draw_buf_create(lv_area_get_width(full_area), 1, dsc->header.cf, LV_STRIDE_AUTO);
+        int32_t w_px = lv_area_get_width(full_area);
+        lv_draw_buf_t * reshaped = lv_draw_buf_reshape(decoded, dsc->header.cf, w_px, 1, LV_STRIDE_AUTO);
+        if(reshaped == NULL) {
+            if(decoded != NULL) {
+                lv_draw_buf_destroy_user(image_cache_draw_buf_handlers, decoded);
+                decoded = NULL;
+                dsc->decoded = NULL;
+            }
+            decoded = lv_draw_buf_create_user(image_cache_draw_buf_handlers, w_px, 1, dsc->header.cf, LV_STRIDE_AUTO);
+            if(decoded == NULL) return LV_RESULT_INVALID;
+        }
+        else {
+            decoded = reshaped;
+        }
         dsc->decoded = decoded;
     }
     else {
@@ -228,7 +247,7 @@ static void decoder_close(lv_image_decoder_t * decoder, lv_image_decoder_dsc_t *
     bmp_dsc_t * b = dsc->user_data;
     lv_fs_close(&b->f);
     lv_free(dsc->user_data);
-    if(dsc->decoded) lv_draw_buf_destroy((void *)dsc->decoded);
+    if(dsc->decoded) lv_draw_buf_destroy_user(image_cache_draw_buf_handlers, (void *)dsc->decoded);
 
 }
 

@@ -77,6 +77,7 @@ struct _lv_observer_t {
     void * user_data;                   /**< Additional parameter supplied when subscribing*/
     uint32_t auto_free_user_data : 1;   /**< Automatically free user data when the observer is removed */
     uint32_t notified : 1;              /**< Mark if this observer was already notified*/
+    uint32_t for_obj : 1;               /**< `target` is an `lv_obj_t *`*/
 };
 
 /**********************
@@ -210,6 +211,14 @@ lv_color_t lv_subject_get_previous_color(lv_subject_t * subject);
 void lv_subject_init_group(lv_subject_t * subject, lv_subject_t * list[], uint32_t list_len);
 
 /**
+ * Remove all the observers from a subject and free all allocated memories in it
+ * @param subject   pointer to the subject
+ * @note            objects added with `lv_subject_add_observer_obj` should be already deleted or
+ *                  removed manually.
+ */
+void lv_subject_deinit(lv_subject_t * subject);
+
+/**
  * Get an element from the subject group's list
  * @param subject   pointer to the subject
  * @param index     index of the element to get
@@ -329,15 +338,14 @@ lv_observer_t * lv_obj_bind_state_if_eq(lv_obj_t * obj, lv_subject_t * subject, 
 lv_observer_t * lv_obj_bind_state_if_not_eq(lv_obj_t * obj, lv_subject_t * subject, lv_state_t state,
                                             int32_t ref_value);
 
-#if LV_USE_BUTTON
 /**
- * Set an integer subject to 1 when a button is checked and set it 0 when unchecked.
- * @param obj       pointer to a button
+ * Set an integer subject to 1 when an object is checked and set it 0 when unchecked.
+ * @param obj       pointer to an object
  * @param subject   pointer to a subject
  * @return          pointer to the created observer
+ * @note            Ensure the object's `LV_OBJ_FLAG_CHECKABLE` flag is set
  */
-lv_observer_t * lv_button_bind_checked(lv_obj_t * obj, lv_subject_t * subject);
-#endif
+lv_observer_t * lv_obj_bind_checked(lv_obj_t * obj, lv_subject_t * subject);
 
 #if LV_USE_LABEL
 /**

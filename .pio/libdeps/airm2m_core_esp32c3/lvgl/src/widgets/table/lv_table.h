@@ -74,7 +74,7 @@ LV_ATTRIBUTE_EXTERN_DATA extern const lv_obj_class_t lv_table_class;
  **********************/
 
 /**
- * Create a table object
+ * 创建表对象
  * @param parent        pointer to an object, it will be the parent of the new table
  * @return              pointer to the created table
  */
@@ -85,42 +85,42 @@ lv_obj_t * lv_table_create(lv_obj_t * parent);
  *====================*/
 
 /**
- * Set the value of a cell.
- * @param obj           pointer to a Table object
- * @param row           id of the row [0 .. row_cnt -1]
- * @param col           id of the column [0 .. col_cnt -1]
- * @param txt           text to display in the cell. It will be copied and saved so this variable is not required after this function call.
- * @note                New roes/columns are added automatically if required
+ * 设置单元格的值.
+ * @param obj           指向Table对象的指针
+ * @param row           行的id[0..row_cnt-1]
+ * @param col           列的id[0..col_cnt-1]
+ * @param txt           要在单元格中显示的文本。它将被复制并保存，因此在此函数调用后不需要此变量。
+ * @note                如果需要，会自动添加新的roes/columns
  */
 void lv_table_set_cell_value(lv_obj_t * obj, uint32_t row, uint32_t col, const char * txt);
 
 /**
- * Set the value of a cell.  Memory will be allocated to store the text by the table.
- * @param obj           pointer to a Table object
- * @param row           id of the row [0 .. row_cnt -1]
- * @param col           id of the column [0 .. col_cnt -1]
- * @param fmt           `printf`-like format
- * @note                New roes/columns are added automatically if required
+ * 设置单元格的值。将按表分配内存来存储文本。
+ * @param obj           指向Table对象的指针
+ * @param row           行的id[0..row_cnt-1]
+ * @param col           列的id[0..col_cnt-1]
+ * @param fmt           `类似printf的格式
+ * @note                如果需要，会自动添加新的roes/columns
  */
 void lv_table_set_cell_value_fmt(lv_obj_t * obj, uint32_t row, uint32_t col, const char * fmt,
                                  ...) LV_FORMAT_ATTRIBUTE(4, 5);
 
 /**
- * Set the number of rows
+ * 设置行数
  * @param obj           table pointer to a Table object
  * @param row_cnt       number of rows
  */
 void lv_table_set_row_count(lv_obj_t * obj, uint32_t row_cnt);
 
 /**
- * Set the number of columns
+ * 设置列数
  * @param obj       table pointer to a Table object
  * @param col_cnt   number of columns.
  */
 void lv_table_set_column_count(lv_obj_t * obj, uint32_t col_cnt);
 
 /**
- * Set the width of a column
+ * 设置列的宽度
  * @param obj       table pointer to a Table object
  * @param col_id    id of the column [0 .. LV_TABLE_COL_MAX -1]
  * @param w         width of the column
@@ -128,7 +128,7 @@ void lv_table_set_column_count(lv_obj_t * obj, uint32_t col_cnt);
 void lv_table_set_column_width(lv_obj_t * obj, uint32_t col_id, int32_t w);
 
 /**
- * Add control bits to the cell.
+ * 向单元格添加控制位。
  * @param obj       pointer to a Table object
  * @param row       id of the row [0 .. row_cnt -1]
  * @param col       id of the column [0 .. col_cnt -1]
@@ -137,7 +137,7 @@ void lv_table_set_column_width(lv_obj_t * obj, uint32_t col_id, int32_t w);
 void lv_table_add_cell_ctrl(lv_obj_t * obj, uint32_t row, uint32_t col, lv_table_cell_ctrl_t ctrl);
 
 /**
- * Clear control bits of the cell.
+ * 清除单元格的控制位。
  * @param obj       pointer to a Table object
  * @param row       id of the row [0 .. row_cnt -1]
  * @param col       id of the column [0 .. col_cnt -1]
@@ -146,7 +146,7 @@ void lv_table_add_cell_ctrl(lv_obj_t * obj, uint32_t row, uint32_t col, lv_table
 void lv_table_clear_cell_ctrl(lv_obj_t * obj, uint32_t row, uint32_t col, lv_table_cell_ctrl_t ctrl);
 
 /**
- * Add custom user data to the cell.
+ * 将自定义用户数据添加到单元格中。
  * @param obj       pointer to a Table object
  * @param row       id of the row [0 .. row_cnt -1]
  * @param col       id of the column [0 .. col_cnt -1]
@@ -157,12 +157,20 @@ void lv_table_clear_cell_ctrl(lv_obj_t * obj, uint32_t row, uint32_t col, lv_tab
  */
 void lv_table_set_cell_user_data(lv_obj_t * obj, uint16_t row, uint16_t col, void * user_data);
 
+/**
+ * 设置所选单元格
+ * @param obj       pointer to a table object
+ * @param row       id of the cell row to select
+ * @param col       id of the cell column to select
+ */
+void lv_table_set_selected_cell(lv_obj_t * obj, uint16_t row, uint16_t col);
+
 /*=====================
  * Getter functions
  *====================*/
 
 /**
- * Get the value of a cell.
+ * 获取单元格的值。
  * @param obj       pointer to a Table object
  * @param row       id of the row [0 .. row_cnt -1]
  * @param col       id of the column [0 .. col_cnt -1]
@@ -171,21 +179,21 @@ void lv_table_set_cell_user_data(lv_obj_t * obj, uint16_t row, uint16_t col, voi
 const char * lv_table_get_cell_value(lv_obj_t * obj, uint32_t row, uint32_t col);
 
 /**
- * Get the number of rows.
+ * 获取行数。
  * @param obj       table pointer to a Table object
  * @return          number of rows.
  */
 uint32_t lv_table_get_row_count(lv_obj_t * obj);
 
 /**
- * Get the number of columns.
+ * 获取列数。
  * @param obj       table pointer to a Table object
  * @return          number of columns.
  */
 uint32_t lv_table_get_column_count(lv_obj_t * obj);
 
 /**
- * Get the width of a column
+ * 获取列的宽度
  * @param obj       table pointer to a Table object
  * @param col       id of the column [0 .. LV_TABLE_COL_MAX -1]
  * @return          width of the column
@@ -193,7 +201,7 @@ uint32_t lv_table_get_column_count(lv_obj_t * obj);
 int32_t lv_table_get_column_width(lv_obj_t * obj, uint32_t col);
 
 /**
- * Get whether a cell has the control bits
+ * 获取单元格是否具有控制位
  * @param obj       pointer to a Table object
  * @param row       id of the row [0 .. row_cnt -1]
  * @param col       id of the column [0 .. col_cnt -1]
@@ -203,7 +211,7 @@ int32_t lv_table_get_column_width(lv_obj_t * obj, uint32_t col);
 bool lv_table_has_cell_ctrl(lv_obj_t * obj, uint32_t row, uint32_t col, lv_table_cell_ctrl_t ctrl);
 
 /**
- * Get the selected cell (pressed and or focused)
+ * 获取所选单元格（按下和/或聚焦）
  * @param obj       pointer to a table object
  * @param row       pointer to variable to store the selected row (LV_TABLE_CELL_NONE: if no cell selected)
  * @param col       pointer to variable to store the selected column  (LV_TABLE_CELL_NONE: if no cell selected)
@@ -211,7 +219,7 @@ bool lv_table_has_cell_ctrl(lv_obj_t * obj, uint32_t row, uint32_t col, lv_table
 void lv_table_get_selected_cell(lv_obj_t * obj, uint32_t * row, uint32_t * col);
 
 /**
- * Get custom user data to the cell.
+ * 将自定义用户数据获取到单元格。
  * @param obj       pointer to a Table object
  * @param row       id of the row [0 .. row_cnt -1]
  * @param col       id of the column [0 .. col_cnt -1]

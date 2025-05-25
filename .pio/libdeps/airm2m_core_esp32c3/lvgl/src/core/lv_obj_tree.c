@@ -6,8 +6,6 @@
 /*********************
  *      INCLUDES
  *********************/
-#include <stdlib.h>
-
 #include "lv_obj.h"
 #include "../indev/lv_indev.h"
 #include "../indev/lv_indev_private.h"
@@ -35,7 +33,7 @@
 static void lv_obj_delete_async_cb(void * obj);
 static void obj_delete_core(lv_obj_t * obj);
 static lv_obj_tree_walk_res_t walk_core(lv_obj_t * obj, lv_obj_tree_walk_cb_t cb, void * user_data);
-static lv_obj_tree_walk_res_t dump_tree_core(lv_obj_t * obj, int32_t depth);
+static void dump_tree_core(lv_obj_t * obj, int32_t depth);
 static lv_obj_t * lv_obj_get_first_not_deleting_child(lv_obj_t * obj);
 
 /**********************
@@ -52,9 +50,8 @@ static lv_obj_t * lv_obj_get_first_not_deleting_child(lv_obj_t * obj);
 
 void lv_obj_delete(lv_obj_t * obj)
 {
-    if(obj->is_deleting)
-        return;
-
+    if(obj->is_deleting) return;
+        
     LV_LOG_TRACE("begin (delete %p)", (void *)obj);
     LV_ASSERT_OBJ(obj, MY_CLASS);
     lv_obj_invalidate(obj);
@@ -71,7 +68,7 @@ void lv_obj_delete(lv_obj_t * obj)
 
     obj_delete_core(obj);
 
-    /*Call the ancestor's event handler to the parent to notify it about the child delete*/
+    /*将祖先的事件处理程序调用给父级，以通知其子级删除*/
     if(par && !par->is_deleting) {
         lv_obj_scrollbar_invalidate(par);
         lv_obj_send_event(par, LV_EVENT_CHILD_CHANGED, NULL);
@@ -156,6 +153,10 @@ void lv_obj_set_parent(lv_obj_t * obj, lv_obj_t * parent)
         return;
     }
 
+    if(parent == obj->parent) {
+        return;
+    }
+
     lv_obj_invalidate(obj);
 
     lv_obj_allocate_spec_attr(parent);
@@ -210,7 +211,7 @@ void lv_obj_move_to_index(lv_obj_t * obj, int32_t index)
     }
 
     const uint32_t parent_child_count = lv_obj_get_child_count(parent);
-    /* old_index only can be 0 or greater, this point can not be reached if the parent is not null */
+    /* old_index only can be 0 or greater, this point cannot be reached if the parent is not null */
     const int32_t old_index = lv_obj_get_index(obj);
     LV_ASSERT(0 <= old_index);
 
@@ -313,7 +314,7 @@ lv_display_t * lv_obj_get_display(const lv_obj_t * obj)
         }
     }
 
-    LV_LOG_WARN("No screen found");
+    LV_LOG_WARN("未找到屏幕");
     return NULL;
 }
 
@@ -486,8 +487,13 @@ static void lv_obj_delete_async_cb(void * obj)
 
 static void obj_indev_reset(lv_indev_t * indev, lv_obj_t * obj)
 {
-    /*Wait for release to avoid accidentally triggering other obj to be clicked*/
-    lv_indev_wait_release(indev);
+    /* If the input device is already in the release state,
+     * there is no need to wait for the input device to be released
+     */
+    if(lv_indev_get_state(indev) != LV_INDEV_STATE_RELEASED) {
+        /*Wait for release to avoid accidentally triggering other obj to be clicked*/
+        lv_indev_wait_release(indev);
+    }
 
     /*Reset the input device*/
     lv_indev_reset(indev, obj);
@@ -529,6 +535,9 @@ static void obj_delete_core(lv_obj_t * obj)
             }
             if(indev->pointer.last_pressed == obj) {
                 indev->pointer.last_pressed = NULL;
+            }
+            if(indev->pointer.last_hovered == obj) {
+                indev->pointer.last_hovered = NULL;
             }
         }
 
@@ -609,10 +618,8 @@ static lv_obj_tree_walk_res_t walk_core(lv_obj_t * obj, lv_obj_tree_walk_cb_t cb
     return LV_OBJ_TREE_WALK_NEXT;
 }
 
-static lv_obj_tree_walk_res_t dump_tree_core(lv_obj_t * obj, int32_t depth)
+static void dump_tree_core(lv_obj_t * obj, int32_t depth)
 {
-    lv_obj_tree_walk_res_t res;
-
 #if LV_USE_LOG
     const char * id;
 
@@ -630,14 +637,8 @@ static lv_obj_tree_walk_res_t dump_tree_core(lv_obj_t * obj, int32_t depth)
 
     if(obj && obj->spec_attr && obj->spec_attr->child_cnt) {
         for(uint32_t i = 0; i < obj->spec_attr->child_cnt; i++) {
-            res = dump_tree_core(lv_obj_get_child(obj, i), depth + 1);
-            if(res == LV_OBJ_TREE_WALK_END)
-                break;
+            dump_tree_core(lv_obj_get_child(obj, i), depth + 1);
         }
-        return LV_OBJ_TREE_WALK_NEXT;
-    }
-    else {
-        return LV_OBJ_TREE_WALK_END;
     }
 }
 

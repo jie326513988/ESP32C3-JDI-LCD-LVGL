@@ -1,0 +1,842 @@
+﻿<!DOCTYPE html>
+<html lang='zh-CN'>
+
+<head>
+	<meta charset='utf-8'>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel='stylesheet' type='text/css' href='system\bootstrap.css'>
+	<link rel='stylesheet' type='text/css' href='system\toast.css'>
+	<link rel="shortcut icon" href="system\favicon.ico" type="image/vnd.microsoft.icon">
+	<link rel="icon" href="system\favicon.ico" type="image/vnd.microsoft.icon">
+	<script src='system\jquery.js'></script>
+	<script src='system\bootstrapBundle.js'></script>
+	<script src='system\toast.js'></script>
+	<style>
+		#footer {
+			background-color: #059898;
+			color: #f6f4f4;
+			text-align: center;
+			padding: 10px 0;
+			font-size: 14px;
+			margin-top: 20px;
+		}
+	</style>
+	<title>甘草酸不酸</title>
+</head>
+
+<body onload='getData1()'>
+
+	<div class='container'>
+
+		<h2>WIFI配置&nbsp;<small style='font-size:0.9rem;'><span id='my_staNameIp'>获取中…<!--返回STA名称和ip--></span></small>
+		</h2>
+
+		<form id='form_wifi' target='iframe_wifi'>
+			<div class='form-group' id='wifi_type'>
+				<label for="sel1">周边网络:</label>
+				<select class="form-control" id="sel1">
+					<option>未扫描</option>
+				</select>
+			</div>
+
+			<div class='form-group'>
+				<label for='password'>WIFI密码:</label>
+				<input type='text' class='form-control' name='password' autocomplete='off' placeholder='请输入'>
+			</div>
+
+			<button type='submit' class='btn btn-primary' onclick='tjxx_wifi()'>保存并连接</button>
+			<button type='button' class='btn btn-success' onclick='scan_wifi()'>扫描</button>
+			<button type='button' class='btn btn-success' onclick='scanWifiHistory()'>历史</button>
+			<button type='button' class='btn btn-secondary' onclick='manual_wifi()'>手动</button>
+			<span id='my_wifiReturnFormInfo'>
+				<!-- 按下保存按钮后服务器返回的消息提示 -->
+			</span>
+		</form>
+
+		<iframe name='iframe_wifi' style='display:none;'></iframe> <!-- 不跳转页面 -->
+
+		<br><br>
+
+		<!-- 按钮：用于打开固件更新模态框 -->
+		<button type="button" class="btn btn-success" data-toggle="modal" data-target="#Modal_updata"
+			style='margin:0.5% 0% 1% 0.5%' onclick='get_updateAddress()'>
+			固件更新
+		</button>
+		<!-- 按钮：用于打开上传文件模态框 -->
+		<button type="button" class="btn btn-success" data-toggle="modal" data-target="#Modal_fileUpdata"
+			style='margin:0.5% 0% 1% 0.5%' onclick='get_file_upload()'>
+			快捷上传
+		</button>
+		<!-- 按钮：用于打开文件管理模态框 -->
+		<button type='button' class='btn btn-success' data-toggle='modal' data-target='#Modal_fileManagement'
+			style='margin:0.5% 0% 1% 0.5%'>
+			文件管理
+		</button>
+
+		<!-- 按钮：用于打开更多设置模态框 -->
+		<button type="button" class="btn btn-success" data-toggle="modal" data-target="#Modal_moreSet"
+			style='margin:0.5% 0% 1% 0.5%' onclick='get_inAWord()'>
+			更多设置	
+		</button>
+		<!-- 按钮：用于打开空气质量HA设置模态框 -->
+		<button type='button' class='btn btn-danger' data-toggle='modal' data-target='#Modal_airQualityHAset'
+			style='margin:0.5% 0% 1% 0.5%' onclick='getMQTTAll()'>
+			空气质量HA设置
+		</button>
+		<!-- 按钮：用于打开系统信息模态框 -->
+		<button type="button" class="btn btn-info" data-toggle="modal" data-target="#Modal_info"
+			style='margin:0.5% 0% 1% 0.5%' onclick='get_info()'>
+			关于
+		</button>
+		<a href='/RESET'><button type='button' class='btn btn-warning' style='margin:0.5% 0% 1% 0.5%'>重启</button></a>
+
+		<!-- 固件更新模态框 -->
+		<div class="modal fade" id="Modal_updata">
+			<div class="modal-dialog">
+				<div class="modal-content">
+
+					<!-- 模态框头部 -->
+					<div class="modal-header">
+						<h4 class="modal-title">Web更新固件模式
+							<br><small style='font-size:1rem;'>暂无法使用</small>
+						</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+
+					<!-- 模态框主体 -->
+					<div class="modal-body">
+						<span id='my_updataAddress'>
+							获取中…
+						</span>
+					</div>
+
+					<!-- 模态框底部 -->
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger" data-dismiss="modal">关闭</button>
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+		<!-- 上传文件模态框 -->
+		<div class="modal fade" id="Modal_fileUpdata">
+			<div class="modal-dialog">
+				<div class="modal-content">
+
+					<!-- 模态框头部 -->
+					<div class="modal-header">
+						<h4 class="modal-title">
+							<br><small style='font-size:1rem;'>请保持50kb的空闲空间<br>速度很慢，勿多次点击，等待提示消息</small>
+						</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+
+					<!-- 模态框主体 -->
+					<div class="modal-body">
+						<input type="file" id="file_upload" />
+
+						<div class="progress" style='margin:1% 1% 1% 1%'>
+							<div id="progressNumber" class="progress-bar progress-bar-striped" style="width:0%">
+								<font id="percent">0%</font>
+							</div>
+						</div>
+						<span id='my_fileUpdata'>
+							<!-- 文件上传成功的提示 -->
+						</span>
+
+					</div>
+
+					<!-- 模态框底部 -->
+					<div class="modal-footer">
+						<input class='btn btn-warning' type="button" value="上传" id="upload" onclick='stopgetData2()' />
+						<button type="button" class="btn btn-danger" data-dismiss="modal">关闭</button>
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+		<!-- 文件管理模态框 -->
+		<div class='modal fade' id='Modal_fileManagement'>
+			<div class='modal-dialog'>
+				<div class='modal-content'>
+
+					<!-- 模态框头部 -->
+					<div class='modal-header'>
+						<h4 class='modal-title'>文件管理</h4>
+						<button type='button' class='close' data-dismiss='modal'>&times;</button>
+					</div>
+
+					<!-- 模态框主体 -->
+					<div class='modal-body'>
+						<span id='my_fileManagement'>
+							WiFi历史记录文件/system/wifi.txt<br>
+							重刷固件前可下载到本地备份起来<br>
+							<a target='blank'
+								href='https://gitee.com/Lichengjiez/weather-ink-screen/wikis/SD%E5%8D%A1%E7%96%91%E9%9A%BE%E6%9D%82%E7%97%87'>图片教程&SD卡疑难杂症</a><br>
+						</span>
+					</div>
+
+					<!-- 模态框底部 -->
+					<div class='modal-footer'>
+						<a href="/edit" class="btn btn-info" role="button">进入</a>
+						<button type='button' class='btn btn-danger' data-dismiss='modal'>关闭</button>
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+		<!-- 更多设置模态框 -->
+		<div class="modal fade" id="Modal_moreSet">
+			<div class="modal-dialog">
+				<div class="modal-content">
+
+					<!-- 模态框头部 -->
+					<div class="modal-header">
+						<h4 class="modal-title">更多设置</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+
+					<!-- 模态框主体 -->
+					<div class="modal-body">
+
+						<form id='form_inAWord' target='iframe_inAWord'>
+							<div class='form-group'>
+								<label for='comment'>多功能输入框：</label>
+								<div id='my_inAWord'>
+									<textarea name='inAWord' class='form-control' id='comment'>请输入</textarea>
+								</div>
+							</div>
+							<button type='submit' class='btn btn-primary btn-sm' onclick='tjxx_inAWord()'>发送</button>
+							<a href='#zd6' class='btn btn-secondary btn-sm' data-toggle='collapse'>说明</a>
+							<div id='zd6' class='collapse'>
+								1.重置系统<br>
+								所有设置恢复至初始状态<br>
+								输入：重置系统<br>
+								2.备忘录句子<br>
+								输入除重置系统外的句子即可
+							</div>
+						</form>
+						<iframe id='iframe_inAWord' name='iframe_inAWord' style='display:none;'></iframe>
+					</div>
+
+					<!-- 模态框底部 -->
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger" data-dismiss="modal">关闭</button>
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+		<!-- 空气质量HA设置模态框 -->
+		<div class="modal fade" id="Modal_airQualityHAset">
+			<div class="modal-dialog">
+				<div class="modal-content">
+
+					<!-- 模态框头部 -->
+					<div class="modal-header">
+						<h4 class="modal-title">空气质量<br>Home Assistant<br>MQTT配置</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+
+					<!-- 模态框主体 -->
+					<div class="modal-body">
+						<form id='form_MQTT_host' target='iframe_MQTT_host'>
+							<div class='form-group'>
+								<label for='comment'>主机</label>
+								<div id='MQTT_host'>
+									<textarea name='MQTT_host' class='form-control' rows='1' id='comment'>请输入</textarea>
+								</div>
+							</div>
+							<button type='submit' class='btn btn-primary btn-sm' onclick='submit_MQTT_host()'>发送</button>
+						</form>
+						<iframe id='iframe_MQTT_host' name='iframe_MQTT_host' style='display:none;'></iframe>
+					</div>
+
+					<div class="modal-body">
+						<form id='form_MQTT_port' target='iframe_MQTT_port'>
+							<div class='form-group'>
+								<label for='comment'>端口</label>
+								<div id='MQTT_port'>
+									<textarea name='MQTT_port' class='form-control' rows='1' id='comment'>请输入</textarea>
+								</div>
+							</div>
+							<button type='submit' class='btn btn-primary btn-sm' onclick='submit_MQTT_port()'>发送</button>
+						</form>
+						<iframe id='iframe_MQTT_port' name='iframe_MQTT_port' style='display:none;'></iframe>
+					</div>
+
+					<div class="modal-body">
+						<form id='form_MQTT_userName' target='iframe_MQTT_userName'>
+							<div class='form-group'>
+								<label for='comment'>用户名</label>
+								<div id='MQTT_userName'>
+									<textarea name='MQTT_userName' class='form-control' rows='1' id='comment'>请输入</textarea>
+								</div>
+							</div>
+							<button type='submit' class='btn btn-primary btn-sm' onclick='submit_MQTT_userName()'>发送</button>
+						</form>
+						<iframe id='iframe_MQTT_userName' name='iframe_MQTT_userName' style='display:none;'></iframe>
+					</div>
+
+					<div class="modal-body">
+						<form id='form_MQTT_password' target='iframe_MQTT_password'>
+							<div class='form-group'>
+								<label for='comment'>密码</label>
+								<div id='MQTT_password'>
+									<textarea name='MQTT_password' class='form-control' rows='1' id='comment'>请输入</textarea>
+								</div>
+							</div>
+							<button type='submit' class='btn btn-primary btn-sm' onclick='submit_MQTT_password()'>发送</button>
+						</form>
+						<iframe id='iframe_MQTT_password' name='iframe_MQTT_password' style='display:none;'></iframe>
+					</div>
+
+					<div class="modal-body">
+						<form id='form_AQHA_DP' target='iframe_AQHA_DP'>
+							<div class='form-group'>
+								<label for='comment'>发现前缀</label>
+								<div id='AQHA_DP'>
+									<textarea name='AQHA_DP' class='form-control' rows='1' id='comment'>请输入</textarea>
+								</div>
+							</div>
+							<button type='submit' class='btn btn-primary btn-sm' onclick='submit_AQHA_DP()'>发送</button>
+						</form>
+						<iframe id='iframe_AQHA_DP' name='iframe_AQHA_DP' style='display:none;'></iframe>
+					</div>
+
+					<!-- 模态框底部 -->
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger" data-dismiss="modal">关闭</button>
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+		<!-- 系统信息模态框 -->
+		<div class="modal fade" id="Modal_info">
+			<div class="modal-dialog">
+				<div class="modal-content">
+
+					<!-- 模态框头部 -->
+					<div class="modal-header">
+						<h4 class="modal-title">ESP32C3</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+
+					<!-- 模态框主体 -->
+					<div class="modal-body" id='my_info'>
+						获取中…
+					</div>
+
+					<!-- 模态框底部 -->
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger" data-dismiss="modal">关闭</button>
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+		<!--<br>
+		<div class='row' style='text-align:center; font-size:0.8rem;'>
+			<div class='col'><a href='https://oshwhub.com/jie326513988'>甘草酸不酸</a></div>
+		</div>-->
+
+	</div>
+
+    <!-- 底部版权信息 -->
+    <div id="footer">
+        By 甘草酸不酸
+    </div>
+
+	<script>
+		//吐司消息提示框
+		$('body').tooltip({
+			selector: '[data-toggle="tooltip"]'
+		});
+		function show_toast(str1, str2) {
+			$.toast({
+				title: str1,
+				content: str2,
+				type: 'info',
+				delay: 2000
+			});
+		}
+		function show_toast_noTime(str1, str2) {
+			$.toast({
+				title: str1,
+				content: str2,
+				type: 'info',
+				delay: 0
+			});
+		}
+
+		var timingGetVar2;
+		function getData1() {
+			setTimeout(function () { get_staNameIp(); }, 500); //获取stp和天气数据，仅一次
+		}
+		function get_city_time() {
+			setTimeout(function () { get_city(); }, 500); //获取天气数据，仅一次
+		}
+		function getData2() {
+			timingGetVar2 = setInterval(function () { get_staNameIp(); }, 3000); //获取stp和天气数据，循环获取
+		}
+		function stopgetData2() {
+			clearInterval(timingGetVar2);  //停止获取ip和天气数据
+		}
+		function getMQTTAll() {
+			setTimeout(function(){get_MQTT_host();},50);
+			setTimeout(function(){get_MQTT_port();},100);
+			setTimeout(function(){get_MQTT_password();},150);
+			setTimeout(function(){get_MQTT_userName();},200);
+			setTimeout(function(){get_AQHA_DP();},250);
+		}
+		//获取文件系统剩余的内存
+		var file_sync;
+		function fileSync() {
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function () {
+				if (xhttp.readyState == 4 && xhttp.status == 200) {
+					file_sync = xhttp.responseText;
+					//document.getElementById('my_fileUpdata').innerHTML = xhttp.responseText;		
+					//alert("剩余内存："+file_sync);
+				}
+			};
+			xhttp.open('GET', '/Read_fileSync', true);
+			xhttp.send();
+		}
+		function get_file_upload() //进度条清零并获取文件系统的剩余空间
+		{
+			$("#percent").html(0 + '%')
+			$("#progressNumber").css("width", "" + 0 + "%");
+			fileSync();
+		}
+
+		var file = null;
+		$(function () {
+			$("#upload").click(function () {
+				if (uploadSwitch) upload();
+			});
+		});
+
+		var uploadSwitch = 0;
+		var input = document.getElementById("file_upload");
+		//文件域选择文件时, 执行readFile函数 
+		input.addEventListener('change', readFile, false);
+		function readFile() {
+			var fileSize = this.files[0].size
+			file = this.files[0];
+			if (fileSize > file_sync) {
+				uploadSwitch = 0;
+				wifi_xiaoxi = "剩余空间不足:" + byteConversion(fileSize) + ">" + byteConversion(file_sync);
+				web_message = "<div class='alert alert-warning alert-dismissible fade show' style='margin:10px;' onclick='get_file_upload()'>";
+				web_message += "<button type='button' class='close' data-dismiss='alert'>&times;</button>";
+				web_message += "<strong>" + wifi_xiaoxi + "</strong></div>";
+				document.getElementById('my_fileUpdata').innerHTML = web_message;
+			}
+			else {
+				uploadSwitch = 1;
+				wifi_xiaoxi = "允许上传,文件大小" + byteConversion(fileSize);
+				web_message = "<div class='alert alert-success alert-dismissible fade show' style='margin:10px;' onclick='get_file_upload()'>";
+				web_message += "<button type='button' class='close' data-dismiss='alert'>&times;</button>";
+				web_message += "<strong>" + wifi_xiaoxi + "</strong></div>";
+				document.getElementById('my_fileUpdata').innerHTML = web_message;
+			}
+		}
+		var significantFigure = function (value, figure) {
+			var arr = (value + '').split('.');//将拿到的值转换成字符串 然后用小数点进行切割
+			arr[0] = parseFloat(arr[0]);//将切割后的数组 第一个值转换成浮点值
+			arr[1] = '0.' + arr[1];    //将切割后的数组的 第二个值转换成小数点形式的字符串
+			arr[1] = parseFloat(arr[1]).toPrecision(figure);//将数组第二个值转换成浮点值 按 要求的精确位数四舍五入【注：返回值是String类型】
+			//判断处理后的数组第一个值是否有. 有判断其长度，如果长度小于不够精确位数，加0---【注 字符串拼凑】                
+			arr[1] += (RegExp('[.]').test(value)) ? (arr[1].length == figure + 1 ? '0' : '') : '.00';
+			//判断处理后的arr[1]中是否有1有1 则给arr[0]加1
+			arr[0] += RegExp('^1').test(arr[1]) ? 1 : 0;
+			//将处理后的arr[0]+arr[1]拼凑回value值
+			value = arr[0] + RegExp("[.]\\d{" + figure + "}").exec(arr[1]);
+			//返回value
+			return value;
+		}
+		var byteConversion = function (size) {
+			var hs;
+			if (size >= 1073741824) {
+				hs = (size / 1073741824);
+				hs = significantFigure(hs, 2) + "GB";
+			}
+			if (size >= 1048576) {
+				hs = (size / 1048576);
+				hs = significantFigure(hs, 2) + "MB";
+			}
+			else if (size >= 1024) {
+				hs = (size / 1024);
+				hs = significantFigure(hs, 2) + "KB";
+			}
+			else hs = size + "B";
+			return hs;
+		}
+		//上传文件 
+		function upload() {
+			var up_xhr;
+			up_xhr = new XMLHttpRequest();
+			//监听事件 
+			up_xhr.upload.addEventListener("progress", uploadProgress);
+			//发送文件和表单自定义 
+			var fd = new FormData();
+			fd.append("fileName", file);
+			up_xhr.open("POST", "/FileUpdata");
+			up_xhr.send(fd);
+			up_xhr.onload = function () {
+				if (up_xhr.responseText != "") {
+					wifi_xiaoxi = up_xhr.responseText;
+					web_message = "<div class='alert alert-success alert-dismissible fade show' style='margin:10px;' onclick='get_file_upload()'>";
+					web_message += "<button type='button' class='close' data-dismiss='alert'>&times;</button>";
+					web_message += "<strong>" + wifi_xiaoxi + "</strong></div>";
+					document.getElementById('my_fileUpdata').innerHTML = web_message;
+				}
+			}
+		}
+
+		function uploadProgress(evt) {
+			if (evt.lengthComputable) {
+				//evt.loaded：文件上传的大小 evt.total：文件总的大小   
+				var percentComplete = Math.round((evt.loaded) * 100 / evt.total);
+				//加载进度，同事显示信息示信息  
+				$("#percent").html(percentComplete + '%')
+				$("#progressNumber").css("width", "" + percentComplete + "%");
+			}
+		}
+
+		//*****************************************	
+
+		function tjxx_wifi() //WIFI表单提交
+		{
+			var form = document.getElementById('form_wifi');
+			// 将html表单转换为formData表单对象
+			var formData = new FormData(form);
+			// 创建ajax对象
+			var xhr = new XMLHttpRequest();
+			// 对ajax对象进行配置
+			xhr.open('POST', '/Wifi');
+			// 当发送跨域请求时，携带cookie信息
+			xhr.withCredentials = true;
+			// 发送请求并传递请求参数
+			xhr.send(formData);
+			// 监听服务器端给予的响应内容
+			xhr.onload = function () {
+				//console.log(xhr.responseText);
+				if (xhr.responseText != "") {
+					wifi_xiaoxi = xhr.responseText;
+					web_message = "<div class='alert alert-success alert-dismissible fade show' style='margin:10px;'>";
+					web_message += "<button type='button' class='close' data-dismiss='alert'>&times;</button>";
+					web_message += "<strong>" + wifi_xiaoxi + "</strong></div>";
+					document.getElementById('my_wifiReturnFormInfo').innerHTML = web_message;
+				}
+				getData2();
+			}
+		}
+
+		function tjxx_inAWord() //自定义一句话表单提交
+		{
+			var form = document.getElementById('form_inAWord');
+			var formData = new FormData(form);
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST', '/InAWord');
+			xhr.withCredentials = true;
+			xhr.send(formData);
+			xhr.onload = function () {
+				console.log(xhr.responseText);
+				if (xhr.responseText != "") {
+					show_toast('多功能输入框', xhr.responseText);
+				}
+				else show_toast('多功能输入框', '返回为空');
+			}
+			setTimeout(function(){get_inAWord();},500); 
+		}
+		function get_inAWord()  //获取多功能输入框的模式
+		{
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function () {
+				if (xhttp.readyState == 4 && xhttp.status == 200) {
+					document.getElementById('my_inAWord').innerHTML = xhttp.responseText;
+				}
+			};
+			xhttp.open('GET', '/Read_InAWord?t=' + Math.random(), true);
+			xhttp.send();
+		}
+
+		function submit_MQTT_host() // MQTT主机 提交
+		{
+			var form = document.getElementById('form_MQTT_host');
+			var formData = new FormData(form);
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST', '/submit_MQTT_host');
+			xhr.withCredentials = true;
+			xhr.send(formData);
+			xhr.onload = function () {
+				console.log(xhr.responseText);
+				if (xhr.responseText != "") {
+					show_toast('MQTT主机', xhr.responseText);
+				}
+				else show_toast('MQTT主机', '返回为空');
+			}
+			setTimeout(function(){get_MQTT_host();},1000); 
+		}
+		function get_MQTT_host()  // MQTT主机 获取
+		{
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function () {
+				if (xhttp.readyState == 4 && xhttp.status == 200) {
+					document.getElementById('MQTT_host').innerHTML = xhttp.responseText;
+				}
+			};
+			xhttp.open('GET', '/get_MQTT_host?t=' + Math.random(), true);
+			xhttp.send();
+		}
+
+		function submit_MQTT_port() // MQTT端口 提交
+		{
+			var form = document.getElementById('form_MQTT_port');
+			var formData = new FormData(form);
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST', '/submit_MQTT_port');
+			xhr.withCredentials = true;
+			xhr.send(formData);
+			xhr.onload = function () {
+				console.log(xhr.responseText);
+				if (xhr.responseText != "") {
+					show_toast('MQTT端口', xhr.responseText);
+				}
+				else show_toast('MQTT端口', '返回为空');
+			}
+			setTimeout(function(){get_MQTT_port();},1000); 
+		}
+		function get_MQTT_port()  // MQTT端口 获取
+		{
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function () {
+				if (xhttp.readyState == 4 && xhttp.status == 200) {
+					document.getElementById('MQTT_port').innerHTML = xhttp.responseText;
+				}
+			};
+			xhttp.open('GET', '/get_MQTT_port?t=' + Math.random(), true);
+			xhttp.send();
+		}
+
+		function submit_MQTT_userName() // MQTT用户名 提交
+		{
+			var form = document.getElementById('form_MQTT_userName');
+			var formData = new FormData(form);
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST', '/submit_MQTT_userName');
+			xhr.withCredentials = true;
+			xhr.send(formData);
+			xhr.onload = function () {
+				console.log(xhr.responseText);
+				if (xhr.responseText != "") {
+					show_toast('MQTT用户名', xhr.responseText);
+				}
+				else show_toast('MQTT用户名', '返回为空');
+			}
+			setTimeout(function(){get_MQTT_userName();},1000); 
+		}
+		function get_MQTT_userName()  // MQTT用户名 获取
+		{
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function () {
+				if (xhttp.readyState == 4 && xhttp.status == 200) {
+					document.getElementById('MQTT_userName').innerHTML = xhttp.responseText;
+				}
+			};
+			xhttp.open('GET', '/get_MQTT_userName?t=' + Math.random(), true);
+			xhttp.send();
+		}
+
+		function submit_MQTT_password() // MQTT密码 提交
+		{
+			var form = document.getElementById('form_MQTT_password');
+			var formData = new FormData(form);
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST', '/submit_MQTT_password');
+			xhr.withCredentials = true;
+			xhr.send(formData);
+			xhr.onload = function () {
+				console.log(xhr.responseText);
+				if (xhr.responseText != "") {
+					show_toast('MQTT密码', xhr.responseText);
+				}
+				else show_toast('MQTT密码', '返回为空');
+			}
+			setTimeout(function(){get_MQTT_password();},1000); 
+		}
+		function get_MQTT_password()  // MQTT密码 获取
+		{
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function () {
+				if (xhttp.readyState == 4 && xhttp.status == 200) {
+					document.getElementById('MQTT_password').innerHTML = xhttp.responseText;
+				}
+			};
+			xhttp.open('GET', '/get_MQTT_password?t=' + Math.random(), true);
+			xhttp.send();
+		}
+
+		function submit_AQHA_DP() // MQTT空气质量发现前缀 提交
+		{
+			var form = document.getElementById('form_AQHA_DP');
+			var formData = new FormData(form);
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST', '/submit_AQHA_DP');
+			xhr.withCredentials = true;
+			xhr.send(formData);
+			xhr.onload = function () {
+				console.log(xhr.responseText);
+				if (xhr.responseText != "") {
+					show_toast('空气质量发现前缀', xhr.responseText);
+				}
+				else show_toast('空气质量发现前缀', '返回为空');
+			}
+			setTimeout(function(){get_AQHA_DP();},1000); 
+		}
+		function get_AQHA_DP()  // MQTT空气质量发现前缀 获取
+		{
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function () {
+				if (xhttp.readyState == 4 && xhttp.status == 200) {
+					document.getElementById('AQHA_DP').innerHTML = xhttp.responseText;
+				}
+			};
+			xhttp.open('GET', '/get_AQHA_DP?t=' + Math.random(), true);
+			xhttp.send();
+		}
+
+		function get_updateAddress() //获取固件更新地址 
+		{
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function () {
+				if (xhttp.readyState == 4 && xhttp.status == 200) {
+					document.getElementById('my_updataAddress').innerHTML = xhttp.responseText;
+				}
+			};
+			xhttp.open('GET', '/Read_updataAddress', true);
+			xhttp.send();
+		}
+
+		function get_info()  //获取系统配置信息
+		{
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function () {
+				if (xhttp.readyState == 4 && xhttp.status == 200) {
+					document.getElementById('my_info').innerHTML = xhttp.responseText;
+				}
+			};
+			xhttp.open('GET', '/Read_info', true);
+			xhttp.send();
+		}
+
+		function manual_wifi() {
+			document.getElementById("wifi_type").innerHTML = "<label for='ssid'>WIFI名称:</label><input type='text' class='form-control' name='ssid' placeholder='请输入'>";
+			document.getElementById('my_wifiReturnFormInfo').innerHTML = "";
+		}
+		function scan_wifi() {
+			document.getElementById("wifi_type").innerHTML = "<label for='sel1'>周边网络:</label><select class='form-control' id='sel1'><option>扫描中</option></select>";
+
+			var web_message = "<div class='alert alert-success alert-dismissible fade show' style='margin:10px;'>";
+			web_message += "<button type='button' class='close' data-dismiss='alert'>&times;</button>";
+			web_message += "<strong>" + "WIFI扫描中（可能会断连，重新连接查看历史即可）" + "</strong></div>";
+			document.getElementById('my_wifiReturnFormInfo').innerHTML = web_message;
+
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function () {
+				if (xhttp.readyState == 4 && xhttp.status == 200) {
+					document.getElementById('wifi_type').innerHTML = xhttp.responseText;
+
+					web_message = "<div class='alert alert-success alert-dismissible fade show' style='margin:10px;'>";
+					web_message += "<button type='button' class='close' data-dismiss='alert'>&times;</button>";
+					web_message += "<strong>" + "扫描完毕" + "</strong></div>";
+					document.getElementById('my_wifiReturnFormInfo').innerHTML = web_message;
+				}
+			}
+			xhttp.open('GET', '/Read_scanWifi', true);
+			xhttp.send();
+		}
+		function scanWifiHistory() {
+			document.getElementById("wifi_type").innerHTML = "<label for='sel1'>周边网络:</label><select class='form-control' id='sel1'><option>加载中</option></select>";
+
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function () {
+				if (xhttp.readyState == 4 && xhttp.status == 200) {
+					document.getElementById('wifi_type').innerHTML = xhttp.responseText;
+
+					web_message = "<div class='alert alert-success alert-dismissible fade show' style='margin:10px;'>";
+					web_message += "<button type='button' class='close' data-dismiss='alert'>&times;</button>";
+					web_message += "<strong>" + "已更新" + "</strong></div>";
+					document.getElementById('my_wifiReturnFormInfo').innerHTML = web_message;
+				}
+			}
+			xhttp.open('GET', '/Read_scanWifiHistory', true);
+			xhttp.send();
+		}
+
+		var old_xiaoxi;
+		var xiaoxi_count = 0;
+		function get_staNameIp()  //获取WIFI名称和IP地址
+		{
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function () {
+				if (xhttp.readyState == 4 && xhttp.status == 200) {
+					document.getElementById('my_staNameIp').innerHTML = xhttp.responseText;
+					if (old_xiaoxi == xhttp.responseText) {
+						xiaoxi_count++;
+						if (xiaoxi_count > 2) {
+							var str = xhttp.responseText;
+							var length = str.length;
+							var web_message;
+							//console.log(str);console.log(length);
+							if (str[length - 1] >= 0 && str[length - 1] <= 9) //判断最后一位为数字表示wifi连接成功
+							{
+								stopgetData2();
+								show_toast_noTime('WiFi配置', '连接成功');
+								web_message = "<div class='alert alert-success alert-dismissible fade show' style='margin:10px;'>";
+								web_message += "<button type='button' class='close' data-dismiss='alert'>&times;</button>";
+								web_message += "<strong>" + "WiFi连接成功" + "</strong></div>";
+								document.getElementById('my_wifiReturnFormInfo').innerHTML = web_message;
+							}
+							else {
+								stopgetData2();
+								show_toast_noTime('WiFi配置', '连接失败');
+								web_message = "<div class='alert alert-danger alert-dismissible fade show' style='margin:10px;'>";
+								web_message += "<button type='button' class='close' data-dismiss='alert'>&times;</button>";
+								web_message += "<strong>" + "WiFi连接失败" + "</strong></div>";
+								document.getElementById('my_wifiReturnFormInfo').innerHTML = web_message;
+								document.getElementById("my_staNameIp").innerHTML = "WiFi连接失败";
+							}
+						}
+					}
+					else xiaoxi_count = 0;
+					old_xiaoxi = xhttp.responseText;
+				}
+			}
+			xhttp.open('GET', '/Read_staNameIp', true);
+			xhttp.send();
+		}
+
+		function get_city()   //获取天气数据
+		{
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function () {
+				if (xhttp.readyState == 4 && xhttp.status == 200) {
+					document.getElementById('my_city').innerHTML = xhttp.responseText;
+				}
+			}
+			xhttp.open('GET', '/Read_city', true);
+			xhttp.send();
+		}
+	</script>
+</body>
+
+</html>

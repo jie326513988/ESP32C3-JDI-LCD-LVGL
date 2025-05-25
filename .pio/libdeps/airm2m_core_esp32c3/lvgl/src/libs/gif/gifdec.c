@@ -81,26 +81,26 @@ static gd_GIF * gif_open(gd_GIF * gif_base)
     int gct_sz;
     gd_GIF * gif = NULL;
 
-    /* 标头 */
+    /* Header */
     f_gif_read(gif_base, sigver, 3);
     if(memcmp(sigver, "GIF", 3) != 0) {
-        LV_LOG_WARN("无效签名\n");
+        LV_LOG_WARN("invalid signature");
         goto fail;
     }
-    /* 版本 */
+    /* Version */
     f_gif_read(gif_base, sigver, 3);
     if(memcmp(sigver, "89a", 3) != 0) {
-        LV_LOG_WARN("无效版本\n");
+        LV_LOG_WARN("invalid version");
         goto fail;
     }
-    /* 宽度x高度 */
+    /* Width x Height */
     width  = read_num(gif_base);
     height = read_num(gif_base);
     /* FDSZ */
     f_gif_read(gif_base, &fdsz, 1);
-    /* GCT的存在 */
+    /* Presence of GCT */
     if(!(fdsz & 0x80)) {
-        LV_LOG_WARN("没有全局颜色表\n");
+        LV_LOG_WARN("no global color table");
         goto fail;
     }
     /* Color Space's Depth */
@@ -632,7 +632,7 @@ read_image(gd_GIF * gif)
 }
 
 static void
-render_frame_rect(gd_GIF *gif, uint8_t *buffer)
+render_frame_rect(gd_GIF * gif, uint8_t * buffer)
 {
     int i = gif->fy * gif->width + gif->fx;
 #ifdef GIFDEC_RENDER_FRAME
@@ -641,16 +641,13 @@ render_frame_rect(gd_GIF *gif, uint8_t *buffer)
                         gif->gce.transparency ? gif->gce.tindex : 0x100);
 #else
     int j, k;
-    uint8_t index, *color;
+    uint8_t index, * color;
 
-    for (j = 0; j < gif->fh; j++)
-    {
-        for (k = 0; k < gif->fw; k++)
-        {
+    for(j = 0; j < gif->fh; j++) {
+        for(k = 0; k < gif->fw; k++) {
             index = gif->frame[(gif->fy + j) * gif->width + gif->fx + k];
             color = &gif->palette->colors[index * 3];
-            if (!gif->gce.transparency || index != gif->gce.tindex)
-            {
+            if(!gif->gce.transparency || index != gif->gce.tindex) {
                 buffer[(i + k) * 4 + 0] = *(color + 2);
                 buffer[(i + k) * 4 + 1] = *(color + 1);
                 buffer[(i + k) * 4 + 2] = *(color + 0);
@@ -698,7 +695,7 @@ dispose(gd_GIF * gif)
     }
 }
 
-/* 如果得到帧，则返回1；0如果得到GIF预告片-如果出现错误，则为1。 */
+/* Return 1 if got a frame; 0 if got GIF trailer; -1 if error. */
 int
 gd_get_frame(gd_GIF * gif)
 {

@@ -19,15 +19,11 @@ extern "C" {
 #include "lv_timer.h"
 #include "lv_ll.h"
 
-#include <stdint.h>
-#include <stdbool.h>
-#include <stddef.h>
-
 /*********************
  *      DEFINES
  *********************/
 
-#define LV_ANIM_REPEAT_INFINITE      0xFFFF
+#define LV_ANIM_REPEAT_INFINITE      0xFFFFFFFF
 #define LV_ANIM_PLAYTIME_INFINITE    0xFFFFFFFF
 
 /*
@@ -142,7 +138,7 @@ struct _lv_anim_t {
     lv_anim_get_value_cb_t get_value_cb; /**< Get the current value in relative mode*/
     void * user_data;                    /**< Custom user data*/
     lv_anim_path_cb_t path_cb;         /**< Describe the path (curve) of animations*/
-    int32_t start_value;               /**< 起始值*/
+    int32_t start_value;               /**< Start value*/
     int32_t current_value;             /**< Current value*/
     int32_t end_value;                 /**< End value*/
     int32_t duration;                /**< Animation time in ms*/
@@ -150,18 +146,17 @@ struct _lv_anim_t {
     uint32_t playback_delay;     /**< Wait before play back*/
     uint32_t playback_duration;      /**< Duration of playback animation*/
     uint32_t repeat_delay;       /**< Wait before repeat*/
-    uint16_t repeat_cnt;         /**< Repeat count for the animation*/
+    uint32_t repeat_cnt;         /**< Repeat count for the animation*/
     union _lv_anim_path_para_t {
         lv_anim_bezier3_para_t bezier3; /**< Parameter used when path is custom_bezier*/
     } parameter;
 
-    uint8_t early_apply  : 1;    /**< 1: Apply start value immediately even is there is `delay`*/
-
-    /*动画系统使用这些-用户不应该设置*/
+    /*Animation system use these - user shouldn't set*/
     uint32_t last_timer_run;
     uint8_t playback_now : 1; /**< Play back is in progress*/
     uint8_t run_round : 1;    /**< Indicates the animation has run in this round*/
     uint8_t start_cb_called : 1;    /**< Indicates that the `start_cb` was already called*/
+    uint8_t early_apply  : 1;    /**< 1: Apply start value immediately even is there is `delay`*/
 };
 
 /**********************
@@ -169,30 +164,30 @@ struct _lv_anim_t {
  **********************/
 
 /**
- * Init the animation module
- */
+* 初始化动画模块
+*/
 void _lv_anim_core_init(void);
 
 /**
- * Deinit the animation module
+*取消动画模块的单元
  */
 void _lv_anim_core_deinit(void);
 
 /**
- * Initialize an animation variable.
- * E.g.:
- * lv_anim_t a;
- * lv_anim_init(&a);
- * lv_anim_set_...(&a);
- * lv_anim_start(&a);
- * @param a     pointer to an `lv_anim_t` variable to initialize
- */
+* 初始化动画变量。
+* 例如：
+* lv_anim_t a；
+* lv_anim_init（/a）；
+* lv_anim_set_...。一
+* lv_anim_start（/a）；
+* @param 指向要初始化的“lv_anim_t”变量的指针
+*/
 void lv_anim_init(lv_anim_t * a);
 
 /**
- * Set a variable to animate
- * @param a     pointer to an initialized `lv_anim_t` variable
- * @param var   pointer to a variable to animate
+ * 设置需要动画的对象
+ * @param 指向初始化的“lv_anim_t”变量的指针
+ * @param var 指向要设置动画的变量的指针
  */
 static inline void lv_anim_set_var(lv_anim_t * a, void * var)
 {
@@ -200,21 +195,21 @@ static inline void lv_anim_set_var(lv_anim_t * a, void * var)
 }
 
 /**
- * 设置要设置动画的函数`var`
- * @param a         pointer to an initialized `lv_anim_t` variable
- * @param exec_cb   a function to execute during animation
- *                  LVGL's built-in functions can be used.
- *                  E.g. lv_obj_set_x
- */
+* 设置要设置动画的函数`var`
+* @param 指向初始化的“lv_anim_t”变量的指针
+* @param exec_cb 动画期间要执行的函数
+* 可以使用LVGL的内置功能。
+* 例如lv_obj_set_x
+*/
 static inline void lv_anim_set_exec_cb(lv_anim_t * a, lv_anim_exec_xcb_t exec_cb)
 {
     a->exec_cb = exec_cb;
 }
 
 /**
- * Set the duration of an animation
- * @param a         pointer to an initialized `lv_anim_t` variable
- * @param duration  duration of the animation in milliseconds
+ * 设置动画的持续时间
+ * @param a         指向初始化的“lv_anim_t”变量的指针
+ * @param duration  动画的持续时间（以毫秒为单位）
  */
 static inline void lv_anim_set_duration(lv_anim_t * a, uint32_t duration)
 {
@@ -222,7 +217,7 @@ static inline void lv_anim_set_duration(lv_anim_t * a, uint32_t duration)
 }
 
 /**
- * Legacy `lv_anim_set_time` API will be removed soon, use `lv_anim_set_duration` instead.
+ * 旧版`lv_anim_set_time` API将很快被删除，请改用`lv_aim_set_duration`。
  */
 static inline void lv_anim_set_time(lv_anim_t * a, uint32_t duration)
 {
@@ -230,7 +225,7 @@ static inline void lv_anim_set_time(lv_anim_t * a, uint32_t duration)
 }
 
 /**
- * Set a delay before starting the animation
+ * 在开始动画之前设置延迟
  * @param a         pointer to an initialized `lv_anim_t` variable
  * @param delay     delay before the animation in milliseconds
  */
@@ -240,7 +235,7 @@ static inline void lv_anim_set_delay(lv_anim_t * a, uint32_t delay)
 }
 
 /**
- * Set the start and end values of an animation
+ * 设置动画的开始值和结束值
  * @param a         pointer to an initialized `lv_anim_t` variable
  * @param start     the start value
  * @param end       the end value
@@ -253,10 +248,9 @@ static inline void lv_anim_set_values(lv_anim_t * a, int32_t start, int32_t end)
 }
 
 /**
- * Similar to `lv_anim_set_exec_cb` but `lv_anim_custom_exec_cb_t` receives
- * `lv_anim_t * ` as its first parameter instead of `void *`.
- * This function might be used when LVGL is bound to other languages because
- * it's more consistent to have `lv_anim_t *` as first parameter.
+ * 与“lv_anim_set_exec_cb”类似，但“lv_anm_customexec_cb_t”接收“lv_anim_t*”作为其第一个参数，
+ * 而不是“void*”。
+ *当LVGL绑定到其他语言时，可以使用此函数，因为将“lv_anim_t*”作为第一个参数更为一致。
  * @param a         pointer to an initialized `lv_anim_t` variable
  * @param exec_cb   a function to execute.
  */
@@ -266,9 +260,9 @@ static inline void lv_anim_set_custom_exec_cb(lv_anim_t * a, lv_anim_custom_exec
 }
 
 /**
- * Set the path (curve) of the animation.
- * @param a         pointer to an initialized `lv_anim_t` variable
- * @param path_cb a function to set the current value of the animation.
+ * 设置动画的路径（曲线）。
+ * @param a         指向初始化的“lv_anim_t”变量的指针
+ * @param path_cb 用于设置动画的当前值的函数。
  */
 static inline void lv_anim_set_path_cb(lv_anim_t * a, lv_anim_path_cb_t path_cb)
 {
@@ -276,7 +270,7 @@ static inline void lv_anim_set_path_cb(lv_anim_t * a, lv_anim_path_cb_t path_cb)
 }
 
 /**
- * Set a function call when the animation really starts (considering `delay`)
+ * 在动画真正开始时设置函数调用（考虑“延迟”）
  * @param a         pointer to an initialized `lv_anim_t` variable
  * @param start_cb  a function call when the animation starts
  */
@@ -286,7 +280,7 @@ static inline void lv_anim_set_start_cb(lv_anim_t * a, lv_anim_start_cb_t start_
 }
 
 /**
- * Set a function to use the current value of the variable and make start and end value
+ * 设置一个函数以使用变量的当前值并设置开始值和结束值
  * relative to the returned current value.
  * @param a             pointer to an initialized `lv_anim_t` variable
  * @param get_value_cb  a function call when the animation starts
@@ -298,8 +292,8 @@ static inline void lv_anim_set_get_value_cb(lv_anim_t * a, lv_anim_get_value_cb_
 
 /**
  * 设置动画完成时的函数调用
- * @param a             pointer to an initialized `lv_anim_t` variable
- * @param completed_cb  a function call when the animation is fully completed
+ * @param a             指向初始化的“lv_anim_t”变量的指针
+ * @param completed_cb  动画完全完成时的函数调用
  */
 static inline void lv_anim_set_completed_cb(lv_anim_t * a, lv_anim_completed_cb_t completed_cb)
 {
@@ -307,7 +301,7 @@ static inline void lv_anim_set_completed_cb(lv_anim_t * a, lv_anim_completed_cb_
 }
 
 /**
- * Set a function call when the animation is deleted.
+ * 在删除动画时设置函数调用。
  * @param a         pointer to an initialized `lv_anim_t` variable
  * @param deleted_cb  a function call when the animation is deleted
  */
@@ -317,9 +311,9 @@ static inline void lv_anim_set_deleted_cb(lv_anim_t * a, lv_anim_deleted_cb_t de
 }
 
 /**
- * Make the animation to play back to when the forward direction is ready
+ * 使动画在前进方向准备就绪时播放
  * @param a         pointer to an initialized `lv_anim_t` variable
- * @param time      the duration of the playback animation in milliseconds. 0: disable playback
+ * @param time      播放动画的持续时间（毫秒）。0：禁用播放
  */
 static inline void lv_anim_set_playback_duration(lv_anim_t * a, uint32_t duration)
 {
@@ -327,7 +321,7 @@ static inline void lv_anim_set_playback_duration(lv_anim_t * a, uint32_t duratio
 }
 
 /**
- * Legacy `lv_anim_set_playback_time` API will be removed soon, use `lv_anim_set_playback_duration` instead.
+ * 旧版`lv_anim_set_playback_time` API将很快删除，请改用`lv_anim_set_playback_duration`。
  */
 static inline void lv_anim_set_playback_time(lv_anim_t * a, uint32_t duration)
 {
@@ -335,9 +329,9 @@ static inline void lv_anim_set_playback_time(lv_anim_t * a, uint32_t duration)
 }
 
 /**
- * Make the animation to play back to when the forward direction is ready
- * @param a         pointer to an initialized `lv_anim_t` variable
- * @param delay     delay in milliseconds before starting the playback animation.
+ * 使动画在前进方向准备就绪时播放
+ * @param a         指向已初始化的`lv_anim_t`变量的指针
+ * @param delay     开始播放动画之前的延迟（毫秒）。
  */
 static inline void lv_anim_set_playback_delay(lv_anim_t * a, uint32_t delay)
 {
@@ -345,19 +339,19 @@ static inline void lv_anim_set_playback_delay(lv_anim_t * a, uint32_t delay)
 }
 
 /**
- * Make the animation repeat itself.
- * @param a         pointer to an initialized `lv_anim_t` variable
- * @param cnt       repeat count or `LV_ANIM_REPEAT_INFINITE` for infinite repetition. 0: to disable repetition.
+ * 让动画自己重复。
+ * @param a         指向已初始化的`lv_anim_t`变量的指针 
+ * @param cnt       重复计数或“LV_ANIM_REPEAT_INFINITE”表示无限重复。0：禁用重复。
  */
-static inline void lv_anim_set_repeat_count(lv_anim_t * a, uint16_t cnt)
+static inline void lv_anim_set_repeat_count(lv_anim_t * a, uint32_t cnt)
 {
     a->repeat_cnt = cnt;
 }
 
 /**
- * Set a delay before repeating the animation.
+ * 在重复动画之前设置延迟。
  * @param a         pointer to an initialized `lv_anim_t` variable
- * @param delay     delay in milliseconds before repeating the animation.
+ * @param delay     重复动画之前的延迟（毫秒）。
  */
 static inline void lv_anim_set_repeat_delay(lv_anim_t * a, uint32_t delay)
 {
@@ -365,7 +359,7 @@ static inline void lv_anim_set_repeat_delay(lv_anim_t * a, uint32_t delay)
 }
 
 /**
- * Set a whether the animation's should be applied immediately or only when the delay expired.
+ * 设置动画是应立即应用还是仅在延迟到期时应用。
  * @param a         pointer to an initialized `lv_anim_t` variable
  * @param en        true: apply the start value immediately in `lv_anim_start`;
  *                  false: apply the start value only when `delay` ms is elapsed and the animations really starts
@@ -376,7 +370,7 @@ static inline void lv_anim_set_early_apply(lv_anim_t * a, bool en)
 }
 
 /**
- * Set the custom user data field of the animation.
+ * 设置动画的自定义用户数据字段。
  * @param a           pointer to an initialized `lv_anim_t` variable
  * @param user_data   pointer to the new user_data.
  */
@@ -386,7 +380,7 @@ static inline void lv_anim_set_user_data(lv_anim_t * a, void * user_data)
 }
 
 /**
- * Set parameter for cubic bezier path
+ * 设置三次贝塞尔路径的参数
  * @param a         pointer to an initialized `lv_anim_t` variable
  * @param x1        first control point
  * @param y1
@@ -403,14 +397,14 @@ static inline void lv_anim_set_bezier3_param(lv_anim_t * a, int16_t x1, int16_t 
 }
 
 /**
- * Create an animation
+ * 创建动画
  * @param a         an initialized 'anim_t' variable. Not required after call.
  * @return          pointer to the created animation (different from the `a` parameter)
  */
 lv_anim_t * lv_anim_start(const lv_anim_t * a);
 
 /**
- * Get a delay before starting the animation
+ * 在开始动画之前获得延迟
  * @param a pointer to an initialized `lv_anim_t` variable
  * @return delay before the animation in milliseconds
  */
@@ -420,16 +414,16 @@ static inline uint32_t lv_anim_get_delay(const lv_anim_t * a)
 }
 
 /**
- * Get the time used to play the animation.
- * @param a pointer to an animation.
- * @return the play time in milliseconds.
+ * 获取用于播放动画的时间。
+ * @param a 指向动画的指针。
+ * @return 播放时间（毫秒）。
  */
 uint32_t lv_anim_get_playtime(const lv_anim_t * a);
 
 /**
- * Get the duration of an animation
- * @param a         pointer to an initialized `lv_anim_t` variable
- * @return the duration of the animation in milliseconds
+ * 获取动画的持续时间
+ * @param a pointer to an initialized `lv_anim_t` variable
+ * @return  the duration of the animation in milliseconds
  */
 static inline uint32_t lv_anim_get_time(const lv_anim_t * a)
 {
@@ -437,17 +431,17 @@ static inline uint32_t lv_anim_get_time(const lv_anim_t * a)
 }
 
 /**
- * Get the repeat count of the animation.
+ * 获取动画的重复次数。
  * @param a         pointer to an initialized `lv_anim_t` variable
  * @return the repeat count or `LV_ANIM_REPEAT_INFINITE` for infinite repetition. 0: disabled repetition.
  */
-static inline uint16_t lv_anim_get_repeat_count(const lv_anim_t * a)
+static inline uint32_t lv_anim_get_repeat_count(const lv_anim_t * a)
 {
     return a->repeat_cnt;
 }
 
 /**
- * Get the user_data field of the animation
+ * 获取动画的user_data字段
  * @param   a pointer to an initialized `lv_anim_t` variable
  * @return  the pointer to the custom user_data of the animation
  */
@@ -457,7 +451,7 @@ static inline void * lv_anim_get_user_data(const lv_anim_t * a)
 }
 
 /**
- * Delete animation(s) of a variable with a given animator function
+ *使用给定的动画师函数删除变量的动画
  * @param var       pointer to variable
  * @param exec_cb   a function pointer which is animating 'var',
  *                  or NULL to ignore it and delete all the animations of 'var
@@ -466,27 +460,27 @@ static inline void * lv_anim_get_user_data(const lv_anim_t * a)
 bool lv_anim_delete(void * var, lv_anim_exec_xcb_t exec_cb);
 
 /**
- * Delete all the animations
+ * 删除所有动画
  */
 void lv_anim_delete_all(void);
 
 /**
- * Get the animation of a variable and its `exec_cb`.
- * @param var       pointer to variable
- * @param exec_cb   a function pointer which is animating 'var', or NULL to return first matching 'var'
- * @return          pointer to the animation.
+ * 获取变量及其“exec_cb”的动画。
+ * @param var       指向变量的指针
+ * @param exec_cb   为“var”设置动画的函数指针，或返回第一个匹配的“var”的NULL
+ * @return          指向动画的指针。
  */
 lv_anim_t * lv_anim_get(void * var, lv_anim_exec_xcb_t exec_cb);
 
 /**
- * Get global animation refresher timer.
- * @return pointer to the animation refresher timer.
+ * Get global animation refresher timer. 获取全局动画复习计时器。
+ * @return 指向动画刷新定时器的指针。
  */
 lv_timer_t * lv_anim_get_timer(void);
 
 /**
- * Delete an animation by getting the animated variable from `a`.
- * Only animations with `exec_cb` will be deleted.
+ * 通过从“a”中获取动画变量来删除动画。
+ * 只有带有`exec_cb`的动画才会被删除。
  * This function exists because it's logical that all anim. functions receives an
  * `lv_anim_t` as their first parameter. It's not practical in C but might make
  * the API more consequent and makes easier to generate bindings.
@@ -501,10 +495,9 @@ static inline bool lv_anim_custom_delete(lv_anim_t * a, lv_anim_custom_exec_cb_t
 }
 
 /**
- * Get the animation of a variable and its `exec_cb`.
- * This function exists because it's logical that all anim. functions receives an
- * `lv_anim_t` as their first parameter. It's not practical in C but might make
- * the API more consequent and makes easier to generate bindings.
+ * 获取变量及其`exec_cb`的动画。
+ * 这个函数之所以存在，是因为所有动画都是合乎逻辑的。函数接收“lv_anim_t”作为其第一个参数。
+ * 它在C中不实用，但可能会使API更具结果性，并更容易生成绑定。
  * @param a         pointer to an animation.
  * @param exec_cb   a function pointer which is animating 'var', or NULL to return first matching 'var'
  * @return          pointer to the animation.
@@ -515,22 +508,22 @@ static inline lv_anim_t * lv_anim_custom_get(lv_anim_t * a, lv_anim_custom_exec_
 }
 
 /**
- * Get the number of currently running animations
- * @return      the number of running animations
+ * 获取当前正在运行的动画数量
+ * @return      运行动画的数量
  */
 uint16_t lv_anim_count_running(void);
 
 /**
- * Store the speed as a special value which can be used as time in animations.
- * It will be converted to time internally based on the start and end values
+ * 将速度存储为一个特殊值，可以在动画中用作时间。
+ * 它将根据开始和结束值在内部转换为时间
  * @param speed         the speed of the animation in with unit / sec resolution in 0..10k range
  * @return              a special value which can be used as an animation time
  */
 uint32_t lv_anim_speed(uint32_t speed);
 
 /**
- * Store the speed as a special value which can be used as time in animations.
- * It will be converted to time internally based on the start and end values
+ * 将速度存储为一个特殊值，可以在动画中用作时间。
+ * 它将根据开始和结束值在内部转换为时间
  * @param speed         the speed of the animation in as unit / sec resolution in 0..10k range
  * @param min_time      the minimum time in 0..10k range
  * @param max_time      the maximum time in 0..10k range
@@ -542,7 +535,7 @@ uint32_t lv_anim_speed(uint32_t speed);
 uint32_t lv_anim_speed_clamped(uint32_t speed, uint32_t min_time, uint32_t max_time);
 
 /**
- * Manually refresh the state of the animations.
+ * 手动刷新动画的状态。
  * Useful to make the animations running in a blocking process where
  * `lv_timer_handler` can't run for a while.
  * Shouldn't be used directly because it is called in `lv_refr_now()`.
@@ -550,49 +543,49 @@ uint32_t lv_anim_speed_clamped(uint32_t speed, uint32_t min_time, uint32_t max_t
 void lv_anim_refr_now(void);
 
 /**
- * Calculate the current value of an animation applying linear characteristic
+ * 计算应用线性特征的动画的当前值
  * @param a     pointer to an animation
  * @return      the current value to set
  */
 int32_t lv_anim_path_linear(const lv_anim_t * a);
 
 /**
- * Calculate the current value of an animation slowing down the start phase
+ * 计算减缓开始阶段的动画的当前值
  * @param a     pointer to an animation
  * @return      the current value to set
  */
 int32_t lv_anim_path_ease_in(const lv_anim_t * a);
 
 /**
- * Calculate the current value of an animation slowing down the end phase
+ * 计算减缓结束阶段的动画的当前值
  * @param a     pointer to an animation
  * @return      the current value to set
  */
 int32_t lv_anim_path_ease_out(const lv_anim_t * a);
 
 /**
- * Calculate the current value of an animation applying an "S" characteristic (cosine)
+ * 应用“S”特性（余弦）计算动画的当前值
  * @param a     pointer to an animation
  * @return      the current value to set
  */
 int32_t lv_anim_path_ease_in_out(const lv_anim_t * a);
 
 /**
- * Calculate the current value of an animation with overshoot at the end
+ * 计算结尾有过冲的动画的当前值
  * @param a     pointer to an animation
  * @return      the current value to set
  */
 int32_t lv_anim_path_overshoot(const lv_anim_t * a);
 
 /**
- * Calculate the current value of an animation with 3 bounces
+ * 计算具有3次反弹的动画的当前值
  * @param a     pointer to an animation
  * @return      the current value to set
  */
 int32_t lv_anim_path_bounce(const lv_anim_t * a);
 
 /**
- * Calculate the current value of an animation applying step characteristic.
+ * 计算应用步长特征的动画的当前值。
  * (Set end value on the end of the animation)
  * @param a     pointer to an animation
  * @return      the current value to set
@@ -600,7 +593,7 @@ int32_t lv_anim_path_bounce(const lv_anim_t * a);
 int32_t lv_anim_path_step(const lv_anim_t * a);
 
 /**
- * A custom cubic bezier animation path, need to specify cubic-parameters in a->parameter.bezier3
+ * 自定义立方体贝塞尔动画路径，需要在->参数中指定立方体参数。贝塞尔3
  * @param a     pointer to an animation
  * @return      the current value to set
  */

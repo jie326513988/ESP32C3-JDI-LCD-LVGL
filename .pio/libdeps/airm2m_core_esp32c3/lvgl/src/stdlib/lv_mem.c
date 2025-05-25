@@ -136,10 +136,10 @@ void * lv_realloc(void * data_p, size_t new_size)
 
     if(data_p == &zero_mem) return lv_malloc(new_size);
 
-    void * new_p = lv_realloc_core(data_p, new_size);
+    void * new_p = lv_realloc_core(data_p, new_size);//在内部用于执行纯realloc操作
 
     if(new_p == NULL) {
-        LV_LOG_ERROR("couldn't reallocate memory");
+        LV_LOG_ERROR("无法重新分配内存");
         return NULL;
     }
 

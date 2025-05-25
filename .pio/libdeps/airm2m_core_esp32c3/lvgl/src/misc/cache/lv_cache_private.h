@@ -14,8 +14,6 @@ extern "C" {
  *      INCLUDES
  *********************/
 #include "../lv_types.h"
-#include <stdbool.h>
-#include <stdlib.h>
 #include "../../osal/lv_os.h"
 
 /*********************
@@ -134,6 +132,8 @@ struct _lv_cache_t {
     lv_cache_ops_t ops;               /**< The cache operations struct @lv_cache_ops_t */
 
     lv_mutex_t lock;                  /**< The cache lock used to protect the cache in multithreading environments */
+
+    const char * name;                /**< The name of the cache */
 };
 
 /**

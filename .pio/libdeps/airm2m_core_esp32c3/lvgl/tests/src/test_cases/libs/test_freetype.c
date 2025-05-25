@@ -5,9 +5,9 @@
 
 #if LV_USE_FREETYPE
 
-#if __WORDSIZE == 64
+#ifndef NON_AMD64_BUILD
     #define TEST_FREETYPE_ASSERT_EQUAL_SCREENSHOT(NAME) TEST_ASSERT_EQUAL_SCREENSHOT("libs/freetype_" NAME ".lp64.png")
-#elif __WORDSIZE == 32
+#else
     #define TEST_FREETYPE_ASSERT_EQUAL_SCREENSHOT(NAME) TEST_ASSERT_EQUAL_SCREENSHOT("libs/freetype_" NAME ".lp32.png")
 #endif
 
@@ -479,7 +479,7 @@ void test_freetype_outline_rendering_test(void)
     lv_font_get_glyph_dsc(font_italic, &g, 0x9F98, '\0');
 
     const lv_ll_t * outline_data;
-    outline_data = (lv_ll_t *)lv_font_get_glyph_bitmap(&g, 0x9F98, NULL);
+    outline_data = (lv_ll_t *) lv_font_get_glyph_bitmap(&g, NULL);
 
     uint32_t i = 0;
     lv_freetype_outline_event_param_t * param;
