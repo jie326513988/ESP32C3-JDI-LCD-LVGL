@@ -1,4 +1,5 @@
 # [硬件地址oshwhub.com](https://oshwhub.com/jie326513988/cyber-pendant)
+### 简介
 IDE：VScode+platformio<br>
 框架：Arduino<br>
 芯片：ESP32C3<br>
@@ -8,7 +9,7 @@ GUI：LVGL9<br>
 可TYPEC外接扩展模块，目前支持NMEA0183定位协议<br>
 * [单屏幕底板链接](https://oshwhub.com/jie326513988/jdi_mip_arduino)<br>
 * [扩展模块链接](https://oshwhub.com/jie326513988/dian-yuan-tong-xun-mo-kuai-_bq24074)<br>
-* [学习笔记](https://oshwhub.com/jie326513988/dian-yuan-tong-xun-mo-kuai-_bq24074)<br>
+* [学习笔记](https://github.com/jie326513988/ESP32C3-JDI-LCD-LVGL/wiki)<br>
 * [BILIBILI视频合集](https://space.bilibili.com/16758526/lists?sid=4472852)<br>
 * [固件下载地址](https://oshwhub.com/jie326513988/dian-yuan-tong-xun-mo-kuai-_bq24074)<br>
 <img src="/Introducing pictures/1 (3).jpg" width="500">
