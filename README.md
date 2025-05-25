@@ -33,13 +33,13 @@ GUI：LVGL9<br>
 5.上下壳装配打螺丝，4颗 PA1.0x3mm<br>
 <img src="/Introducing pictures/1 (6).jpg" width="500">
 <br><br>
-其他物料（无广告成分）<br>
-501430-210毫安<br>
-PA1.0x3mm螺丝<br>
-2.4G天线<br>
-蜂鸣器<br>
-三向拨轮 FT-007<br>
-AXE510127D座子<br>
+### 其他物料（无广告成分）<br>
+[501430-210毫安](https://detail.tmall.com/item.htm?_u=1mddnvba43b&id=670420612278&spm=a1z09.2.0.0.67002e8dXY0Hu3)<br>
+[PA1.0x3mm螺丝](https://detail.tmall.com/item.htm?_u=1mddnvb0679&id=535439814796&spm=a1z09.2.0.0.1e342e8dOadNG3)<br>
+[2.4G天线](https://item.taobao.com/item.htm?_u=cmddnvb2a4e&id=627328734225&spm=a1z09.2.0.0.682a2e8d17quW4)<br>
+[蜂鸣器](https://item.taobao.com/item.htm?_u=cmddnvb702e&id=633598764121&spm=a1z09.2.0.0.682a2e8d17quW4)<br>
+[三向拨轮 FT-007](https://item.taobao.com/item.htm?_u=1mddnvbcc97&id=536807288489&skuId=4157067468415&spm=a1z09.2.0.0.1e342e8dOadNG3)<br>
+[AXE510127D座子](https://item.taobao.com/item.htm?_u=3mddnvb0d5e&id=678142600344&spm=a1z09.2.0.0.1af62e8dZcDthx)<br>
 裸屏已被倒完，现在只剩带背光触摸的封装屏（还未做接口适配）<br>
 <img src="/Introducing pictures/1 (2).jpg" width="500">
 <br>
@@ -108,6 +108,5 @@ AXE510127D座子<br>
   * 复位按键使用小侧按
   * 使用贴片蜂鸣器，三极管驱动，用于播放midi音乐和闹钟
 ### 其他
-屏幕驱动库
-<br>
-LVGL
+[屏幕驱动库](https://github.com/Gbertaz/JDI_MIP_Display)<br>
+[LVGL](https://lvgl.io/)
