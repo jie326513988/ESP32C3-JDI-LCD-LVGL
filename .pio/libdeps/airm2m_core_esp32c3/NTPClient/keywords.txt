@@ -1,0 +1,23 @@
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+NTPClient	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+end	KEYWORD2
+update	KEYWORD2
+forceUpdate	KEYWORD2
+getDay	KEYWORD2
+getHours	KEYWORD2                   //获取时
+getMinutes	KEYWORD2  //获取分
+getSeconds	KEYWORD2  //获取秒
+getFormattedTime	KEYWORD2  //有格式的时间
+getEpochTime	KEYWORD2  //获取新纪元时间
+setTimeOffset	KEYWORD2  //设置时间偏移(时区)
+setUpdateInterval	KEYWORD2  //更新时间间隔设置
+setPoolServerName	KEYWORD2  //设置池服务器名称

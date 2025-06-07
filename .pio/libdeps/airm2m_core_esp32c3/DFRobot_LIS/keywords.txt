@@ -1,0 +1,262 @@
+#######################################
+# Syntax Coloring Map For DFRobot_LIS
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+DFRobot_LIS	KEYWORD1
+DFRobot_H3LIS200DL_I2C	KEYWORD1
+DFRobot_H3LIS200DL_SPI	KEYWORD1
+DFRobot_LIS331HH_I2C	KEYWORD1
+DFRobot_LIS331HH_SPI	KEYWORD1
+DFRobot_LIS2DW12	KEYWORD1
+DFRobot_IIS2DLPC_SPI	KEYWORD1
+DFRobot_IIS2DLPC_I2C	KEYWORD1
+DFRobot_LIS2DW12_I2C	KEYWORD1
+DFRobot_LIS2DW12_SPI	KEYWORD1
+DFRobot_LIS2DH12	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+readWeight	KEYWORD2
+addCommand	KEYWORD2
+getCalibration	KEYWORD2
+setCalibration	KEYWORD2
+getID	KEYWORD2
+enableXYZ	KEYWORD2
+enableInterruptEvent	KEYWORD2
+setRange	KEYWORD2
+setAcquireRate	KEYWORD2
+setHFilterMode	KEYWORD2
+
+setInt1Th	KEYWORD2
+setInt2Th	KEYWORD2
+enableSleep	KEYWORD2
+getAcceFromXYZ	KEYWORD2
+getInt2Event	KEYWORD2
+getInt1Event	KEYWORD2
+readAccX	KEYWORD2
+readAccZ	KEYWORD2
+readAccY	KEYWORD2
+
+begin	KEYWORD2
+getID	KEYWORD2
+softReset	KEYWORD2
+continRefresh	KEYWORD2
+setFilterPath	KEYWORD2
+setFilterBandwidth	KEYWORD2
+setPowerMode	KEYWORD2
+setDataRate	KEYWORD2
+getDataReadyFlag	KEYWORD2
+setFreeFallDur	KEYWORD2
+setInt1Event	KEYWORD2
+setFfThreshold	KEYWORD2
+setInt2Event	KEYWORD2
+lockInterrupt	KEYWORD2
+getAllSources	KEYWORD2
+setWakeUpDur	KEYWORD2
+setActSleepDur	KEYWORD2
+setWakeUpThreshold	KEYWORD2
+setActMode	KEYWORD2
+setRange	KEYWORD2
+enableTapDetectionOnZ	KEYWORD2
+enableTapDetectionOnY	KEYWORD2
+enableTapDetectionOnX	KEYWORD2
+setTapThresholdOnX	KEYWORD2
+setTapThresholdOnY	KEYWORD2
+setTapThresholdOnZ	KEYWORD2
+setTapDur	KEYWORD2
+setTapMode	KEYWORD2
+set6DThreshold	KEYWORD2
+readAccX	KEYWORD2
+readAccY	KEYWORD2
+readAccZ	KEYWORD2
+actDetected	KEYWORD2
+freeFallDetected	KEYWORD2
+oriChangeDetected	KEYWORD2
+getOriention	KEYWORD2
+tapDetect	KEYWORD2
+getTapDirection	KEYWORD2
+getWakeUpDir	KEYWORD2
+demandData  KEYWORD2
+
+eLowPower_1Hz	KEYWORD2
+eLowPower_10Hz	KEYWORD2
+eLowPower_25Hz	KEYWORD2
+eLowPower_50Hz	KEYWORD2
+eLowPower_100Hz KEYWORD2
+eLowPower_200Hz	KEYWORD2
+oriChangeDetected	KEYWORD2
+eLowPower_400Hz	KEYWORD2
+eLIS2DH12_2g	KEYWORD2
+eLIS2DH12_4g	KEYWORD2
+eLIS2DH12_8g	KEYWORD2
+eLIS2DH12_16g  KEYWORD2
+
+
+
+
+
+
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+
+
+ePowerDown_0HZ	LITERAL1
+eLowPower_halfHZ	LITERAL1
+eLowPower_1HZ	LITERAL1
+eLowPower_2HZ	LITERAL1
+eLowPower_5HZ	LITERAL1
+eLowPower_10HZ	LITERAL1
+eNormal_50HZ	LITERAL1
+eNormal_100HZ	LITERAL1
+eNormal_400HZ	LITERAL1
+eNormal_1000HZ	LITERAL1
+
+eH3lis200dl_100g	LITERAL1
+eH3lis200dl_200g	LITERAL1
+
+eLis331hh_6g	LITERAL1
+eLis331hh_12g	LITERAL1
+eLis331hh_24g	LITERAL1
+
+eCutOffMode1	LITERAL1
+eCutOffMode2	LITERAL1
+eCutOffMode3	LITERAL1
+eCutOffMode4	LITERAL1
+eShutDown	LITERAL1
+eXLowerThanTh	LITERAL1
+eXHigherThanTh	LITERAL1
+eYLowerThanTh	LITERAL1
+eYHigherThanTh	LITERAL1
+eZLowerThanTh	LITERAL1
+eZHigherThanTh	LITERAL1
+eEventError	LITERAL1
+eINT1	LITERAL1
+eINT2	LITERAL1
+sAccel_t	LITERAL1
+
+
+
+eHighPerformance_14bit	LITERAL1
+eContLowPwr4_14bit	LITERAL1
+eContLowPwr3_14bit	LITERAL1
+eContLowPwr2_14bit	LITERAL1
+eContLowPwr1_12bit	LITERAL1
+eSingleLowPwr4_14bit	LITERAL1
+eSingleLowPwr3_14bit	LITERAL1
+eSingleLowPwr2_14bit	LITERAL1
+eSingleLowPwr1_12bit	LITERAL1
+eHighPerformanceLowNoise_14bit	LITERAL1
+eContLowPwrLowNoise4_14bit	LITERAL1
+eContLowPwrLowNoise3_14bit	LITERAL1
+eContLowPwrLowNoise2_14bit	LITERAL1
+eContLowPwrLowNoise1_12bit	LITERAL1
+eSingleLowPwrLowNoise4_14bit	LITERAL1
+eSingleLowPwrLowNoise3_14bit	LITERAL1
+eSingleLowPwrLowNoise2_14bit	LITERAL1
+eSingleLowPwrLowNoise1_12bit	LITERAL1
+
+e2_g	LITERAL1
+e4_g	LITERAL1
+e8_g	LITERAL1
+e16_g	LITERAL1
+
+eLPF	LITERAL1
+eHPF	LITERAL1
+eHighPassOnOut	LITERAL1
+
+
+
+eRateDiv_2	LITERAL1
+eRateDiv_4	LITERAL1
+eRateDiv_10	LITERAL1
+eRateDiv_20	LITERAL1
+
+eRate_0hz	LITERAL1
+eRate_1hz6_lp	LITERAL1
+eRate_12hz5	LITERAL1
+eRate_25hz	LITERAL1
+eRate_50hz	LITERAL1
+eRate_100hz	LITERAL1
+eRate_200hz	LITERAL1
+eRate_400hz	LITERAL1
+eRate_800hz	LITERAL1
+eRate_1k6hz	LITERAL1
+
+
+
+eNoDetection	LITERAL1
+eDetectAct	LITERAL1
+eDetectStatMotion	LITERAL1
+
+eDoubleTap	LITERAL1
+eFreeFall	LITERAL1
+eWakeUp	LITERAL1
+eSingleTap	LITERAL1
+e6D	LITERAL1
+
+eSleepChange	LITERAL1
+eSleepState	LITERAL1
+
+eOnlySingle	LITERAL1
+eBothSingleDouble	LITERAL1
+
+eDegrees80	LITERAL1
+eDegrees70	LITERAL1
+eDegrees60	LITERAL1
+eDegrees50	LITERAL1
+
+
+eSTap	LITERAL1
+eDTap	LITERAL1
+eNoTap	LITERAL1
+
+eDirXUp	LITERAL1
+eDirXDown	LITERAL1
+eDirYUp	LITERAL1
+eDirYDown	LITERAL1
+eDirZUp	LITERAL1
+eDirZDown	LITERAL1
+
+eDirX	LITERAL1
+eDirY	LITERAL1
+eDirZ	LITERAL1
+eDirError	LITERAL1
+
+eXDown	LITERAL1
+eXUp	LITERAL1
+eYDown	LITERAL1
+eYUp	LITERAL1
+eZDown	LITERAL1
+eZUp	LITERAL1
+eTapDir_t	LITERAL1
+eWakeUpDir_t	LITERAL1
+eOrient_t	LITERAL1
+eTap_t	LITERAL1
+
+ePowerDown_0Hz	LITERAL1
+eLowPower_1Hz	LITERAL1
+eLowPower_10Hz	LITERAL1
+eLowPower_25Hz	LITERAL1
+eLowPower_50Hz	LITERAL1
+eLowPower_100Hz	LITERAL1
+eLowPower_200Hz	LITERAL1
+eLowPower_400Hz LITERAL1
+eLIS2DH12_2g	LITERAL1
+eLIS2DH12_4g	LITERAL1
+eLIS2DH12_8g	LITERAL1
+eLIS2DH12_16g	LITERAL1
+eDirZ	LITERAL1
+eDirError	LITERAL1
+
+
+
